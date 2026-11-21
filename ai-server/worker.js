@@ -4,8 +4,12 @@
 // Secrets to set (see README): ANTHROPIC_API_KEY, APP_KEY
 
 const MODELS = { quick: "claude-haiku-5-5", default: "claude-sonnet-5-5", complex: "claude-sonnet-5-5" };
+// Only these pages may call the server (the web app and the iPhone app).
+const ALLOWED = ["https://codywang1-boop.github.io", "capacitor://localhost", "http://localhost"];
+const DAILY_LIMIT = 40; // AI calls per visitor per day (best effort)
+const seen = new Map();
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://codywang1-boop.github.io",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, X-App-Key",
 };
@@ -14,7 +18,16 @@ const json = (obj, status = 200) =>
 
 export default {
   async fetch(req, env) {
+    const origin = req.headers.get("Origin") || "";
+    if (ALLOWED.includes(origin)) CORS["Access-Control-Allow-Origin"] = origin;
     if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+    if (!ALLOWED.includes(origin)) return json({ error: "Not allowed" }, 403);
+    const ip = req.headers.get("CF-Connecting-IP") || "x";
+    const day = new Date().toISOString().slice(0, 10);
+    const key = day + ip, n = (seen.get(key) || 0) + 1;
+    if (seen.size > 5000) seen.clear();
+    seen.set(key, n);
+    if (n > DAILY_LIMIT) return json({ error: "Daily limit reached" }, 429);
     if (req.method !== "POST") return json({ error: "Use POST" }, 405);
     if (!env.APP_KEY || req.headers.get("X-App-Key") !== env.APP_KEY) return json({ error: "Wrong app key" }, 401);
 

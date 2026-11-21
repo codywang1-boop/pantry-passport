@@ -135,7 +135,7 @@ select.pick{padding:9px 12px}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--cover);border-radius:50%;animation:spin 1s linear infinite;vertical-align:-3px;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .hidden{display:none!important}
-body.no-ai .ai-only{display:none!important}
+
 
 /* Form */
 .form label.f{display:block;font-size:14px;font-weight:700;color:var(--muted);margin:14px 0 5px}
@@ -396,7 +396,7 @@ $("photoInput").onchange = $("cameraInput").onchange = async e => {
   $("preview").innerHTML = files.map(f=>`<img alt="" src="${URL.createObjectURL(f)}">`).join("");
   st.innerHTML='<span class="spinner"></span>Getting ready…';
   await aiReady;
-  if(!sample){ st.className="status err"; st.textContent="Photo scanning needs Claude, which isn't available in this view. Type your ingredients instead."; return; }
+  if(!sample){ st.className="status err"; st.textContent="Reading photos isn't switched on yet. Type your ingredients for now."; return; }
   st.innerHTML='<span class="spinner"></span>Looking at your photo… (10–30 seconds)';
   try{
     const blobs = await Promise.all(files.slice(0,(imgLimits&&imgLimits.maxCount)||4).map(f=>shrink(f).catch(()=>f)));
@@ -722,7 +722,7 @@ $("scanCamera").onchange = $("scanInput").onchange = async e=>{
   if(!files.length) return;
   scanSheet('<span><span class="spinner"></span>Getting ready…</span>');
   await aiReady;
-  if(!sample){ scanSheet("Scanning needs Claude, which isn't available in this view. Use ＋ Type a recipe instead.", true); return; }
+  if(!sample){ scanSheet("Reading recipe photos isn't switched on yet. Use ＋ Type a recipe for now.", true); return; }
   const max = (imgLimits && imgLimits.maxCount) || 4;
   const dropped = files.length > max; files = files.slice(0, max);
   const t0=Date.now();

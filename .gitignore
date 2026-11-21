@@ -4,3 +4,6 @@ build/
 *.ipa
 ai-server/.wrangler/
 publish-github.ps1
+ai-server/*.txt
+ai-server/deploy.ps1
+check-build.ps1
