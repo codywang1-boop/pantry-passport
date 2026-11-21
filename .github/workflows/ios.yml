@@ -1,0 +1,56 @@
+name: Build iPhone app (unsigned .ipa for Sideloadly)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["www/**", "capacitor.config.json", "package.json", "assets/**", "make-icons.js", ".github/workflows/ios.yml"]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install packages
+        run: npm install --no-audit --no-fund
+      - name: Add iOS platform
+        run: npx cap add ios
+      - name: App icon and launch screen
+        run: |
+          node make-icons.js
+          npx @capacitor/assets generate --ios --iconBackgroundColor '#123f3a' --splashBackgroundColor '#123f3a'
+      - name: Sync web app into iOS
+        run: npx cap sync ios
+      - name: Camera and photo permissions, version
+        run: |
+          PLIST=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string 'Take photos of your ingredients or a recipe.'" $PLIST || true
+          /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string 'Pick photos of your ingredients, recipes or dishes.'" $PLIST || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.0" $PLIST || true
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion ${{ github.run_number }}" $PLIST || true
+      - name: Build unsigned app
+        run: |
+          cd ios/App
+          if [ -d App.xcworkspace ]; then TARGET="-workspace App.xcworkspace"; else TARGET="-project App.xcodeproj"; fi
+          xcodebuild $TARGET -scheme App -configuration Release -sdk iphoneos \
+            -derivedDataPath "$GITHUB_WORKSPACE/build" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -n 40
+      - name: Package .ipa
+        run: |
+          APP=$(find "$GITHUB_WORKSPACE/build/Build/Products/Release-iphoneos" -maxdepth 1 -name "*.app" | head -1)
+          mkdir -p Payload && cp -R "$APP" Payload/
+          zip -qr PantryPassport.ipa Payload
+          ls -lh PantryPassport.ipa
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PantryPassport-ipa
+          path: PantryPassport.ipa
+      - name: Publish download link (GitHub Release)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete ios-latest -y --cleanup-tag || true
+          gh release create ios-latest PantryPassport.ipa --title "Pantry Passport for iPhone (build ${{ github.run_number }})" --notes "Unsigned .ipa. Install with Sideloadly on a computer: plug in the iPhone, drag in this file, sign in with an Apple ID, Start. Then on the iPhone: Settings > General > VPN & Device Management > trust the Apple ID."
