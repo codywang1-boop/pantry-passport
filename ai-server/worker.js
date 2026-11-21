@@ -1,7 +1,7 @@
 // Pantry Passport AI server (Cloudflare Worker).
 // Keeps your Anthropic API key off the phone. The app sends a prompt (+ optional photos),
 // this server asks Claude and sends back the text.
-// Secrets to set (see README): ANTHROPIC_API_KEY, APP_KEY
+// Secret to set in Cloudflare: ANTHROPIC_API_KEY. Only the app's own pages may call it.
 
 const MODELS = { quick: "claude-haiku-5-5", default: "claude-sonnet-5-5", complex: "claude-sonnet-5-5" };
 // Only these pages may call the server (the web app and the iPhone app).
@@ -29,7 +29,6 @@ export default {
     seen.set(key, n);
     if (n > DAILY_LIMIT) return json({ error: "Daily limit reached" }, 429);
     if (req.method !== "POST") return json({ error: "Use POST" }, 405);
-    if (!env.APP_KEY || req.headers.get("X-App-Key") !== env.APP_KEY) return json({ error: "Wrong app key" }, 401);
 
     let body;
     try { body = await req.json(); } catch { return json({ error: "Bad request" }, 400); }

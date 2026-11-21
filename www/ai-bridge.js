@@ -1,8 +1,7 @@
 // Pantry Passport (iPhone): connects the app's AI features to your own AI server.
 // Leave AI_URL empty to run without AI (built-in recipe book + My recipes still work).
 // After you deploy ai-server (see README), paste its address and app key here and rebuild.
-const AI_URL = "";      // e.g. "https://pantry-passport-ai.yourname.workers.dev"
-const APP_KEY = "";     // the same APP_KEY you set on the server
+const AI_URL = "https://pantry-passport-ai.codywang1.workers.dev";
 
 (function(){
   if (!AI_URL) return; // no AI: the app falls back to the recipe book
@@ -22,7 +21,7 @@ const APP_KEY = "";     // the same APP_KEY you set on the server
     try {
       resp = await fetch(AI_URL, {
         method: "POST", signal: opts.signal,
-        headers: { "Content-Type": "application/json", "X-App-Key": APP_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, images, tier: opts.modelTier || "default" })
       });
     } catch (e) {
