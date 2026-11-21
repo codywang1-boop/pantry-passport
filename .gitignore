@@ -3,3 +3,4 @@ ios/
 build/
 *.ipa
 ai-server/.wrangler/
+publish-github.ps1

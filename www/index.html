@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pantry Passport">
+<meta name="theme-color" content="#123f3a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <title>Pantry Passport</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Familjen+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -129,6 +135,7 @@ select.pick{padding:9px 12px}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--cover);border-radius:50%;animation:spin 1s linear infinite;vertical-align:-3px;margin-right:8px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .hidden{display:none!important}
+body.no-ai .ai-only{display:none!important}
 
 /* Form */
 .form label.f{display:block;font-size:14px;font-weight:700;color:var(--muted);margin:14px 0 5px}
@@ -162,7 +169,7 @@ select.pick{padding:9px 12px}
         <input id="ingInput" type="text" placeholder="e.g. chicken, rice, eggs, tomato" autocomplete="off">
         <button type="submit">Add</button>
       </form>
-      <div class="row" id="photoLabel" style="gap:8px">
+      <div class="row ai-only" id="photoLabel" style="gap:8px">
         <label class="photo-btn" style="flex:1">
           <input id="cameraInput" type="file" accept="image/*" capture="environment">
           📷 Take photo
@@ -210,8 +217,8 @@ select.pick{padding:9px 12px}
 
   <section id="view-mine" class="hidden">
     <button class="primary" id="newRecipe" style="width:100%;padding:14px;margin-bottom:8px">＋ Type a recipe</button>
-    <div class="label" style="margin-top:4px">Scan from photo</div>
-    <div class="row" id="scanLabel" style="gap:8px;margin-bottom:6px">
+    <div class="label ai-only" style="margin-top:4px">Scan from photo</div>
+    <div class="row ai-only" id="scanLabel" style="gap:8px;margin-bottom:6px">
       <label class="photo-btn" style="flex:1;margin-top:0;padding:12px;border-style:solid;background:var(--accent-soft);color:var(--ink)">
         <input type="file" id="scanCamera" accept="image/*" capture="environment">📷 Take photo of recipe
       </label>
@@ -219,7 +226,7 @@ select.pick{padding:9px 12px}
         <input type="file" id="scanInput" accept="image/*" multiple>🖼️ From gallery
       </label>
     </div>
-    <div class="hint" style="margin-bottom:12px">Scan a recipe card, cookbook page, handwritten note or screenshot. Up to 4 photos for one recipe (e.g. front and back). You can check and fix it before saving.</div>
+    <div class="hint ai-only" style="margin-bottom:12px">Scan a recipe card, cookbook page, handwritten note or screenshot. Up to 4 photos for one recipe (e.g. front and back). You can check and fix it before saving.</div>
     <div class="status" id="mineStatus"></div>
     <div id="mineList"></div>
   </section>
@@ -474,7 +481,7 @@ $("goBtn").onclick = async () => {
       }
     }else{
       S.results = mineMatches().concat(localSearch());
-      $("modeNote").textContent=`Showing matches from the built-in recipe book (${BOOK.length} dishes). The AI chef gives more ideas when available.`;
+      $("modeNote").textContent=`Matches from the built-in recipe book (${BOOK.length} dishes) and your own recipes.`;
     }
     S.tab="All"; st.textContent=""; renderResults();
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
@@ -595,7 +602,7 @@ function renderMine(){
   $("mineCount").textContent = mine.length?`(${mine.length})`:"";
   const list=[...mine].sort((a,b)=>(b.updated||0)-(a.updated||0));
   $("mineList").innerHTML = list.length ? list.map((d,i)=>dishCard(withUse(d),i,"m")).join("")
-    : `<div class="empty">No recipes of your own yet. Tap ＋ Type a recipe, or take or pick a photo of a recipe — family dishes, favorites, anything. They'll show up when you search with matching ingredients.</div>`;
+    : `<div class="empty">No recipes of your own yet. Tap ＋ Type a recipe — family dishes, favorites, anything. They'll show up when you search with matching ingredients.</div>`;
   $("mineList").querySelectorAll(".dish").forEach(c=>c.onclick=()=>openDish(withUse(list[+c.dataset.i])));
 }
 function withUse(r){
@@ -782,9 +789,11 @@ const aiReady=(async()=>{
     sample = window.claude && window.claude.use ? await window.claude.use("sample") : null;
     if(sample){ try{ const lim=await sample.limits(); imgLimits=lim&&lim.images||null; canImages=!!imgLimits; }catch(e){ canImages=false; } }
   }catch(e){ sample=null; }
-  $("modeNote").textContent = sample ? "" : "Using the built-in recipe book and your recipes. AI dish search turns on once the AI server is set up.";
+  document.body.classList.toggle("no-ai", !sample);
+  $("modeNote").textContent = sample ? "" : "";
 })();
 aiReady.then(initMine);
+if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
 </script>
 </body>
 </html>

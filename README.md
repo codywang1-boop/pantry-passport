@@ -1,5 +1,7 @@
 # Pantry Passport — iPhone app
 
+**Web app link (any iPhone):** https://codywang1-boop.github.io/pantry-passport/ — open in Safari, tap Share → Add to Home Screen. Every push to `main` updates it automatically.
+
 Same app as the web version, wrapped for iPhone with Capacitor. It's built the same way as StrideBeat: Codemagic builds it on a cloud Mac, and Sideloadly installs it.
 
 ## What works on the iPhone right away
