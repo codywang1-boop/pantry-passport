@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pantry Passport">
 <meta name="theme-color" content="#5b4bff">
+<meta name="color-scheme" content="light only">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
@@ -22,7 +23,7 @@
   --have:#2b7a4b; --have-soft:#e1efe5; --need:#9a5a0c; --need-soft:#f6ead6;
   --r-sm:8px; --r-md:14px;
 }
-@media (prefers-color-scheme: dark){
+@media (prefers-color-scheme: dark) and (max-width: 0px){
   :root{ --paper:#0f1d1b; --page:#162724; --ink:#e7eee9; --muted:#9fb1ab; --line:#2c403c;
     --guilloche:rgba(212,180,106,.05);
     --red:#ef7b80; --blue:#8fb0ee; --violet:#b9a0e6; --green:#7fcf9c; --amber:#e9ae5f; --teal:#6ccfd3;
@@ -153,13 +154,13 @@ select.pick{padding:9px 12px}
 
 /* ===== Modern theme ===== */
 :root{
-  --paper:#f4f5f8; --page:#ffffff; --ink:#14161c; --muted:#6b7080; --line:#e6e8ee; --guilloche:transparent;
+  --paper:#f3f1ff; --page:#ffffff; --ink:#14161c; --muted:#6b7080; --line:#e6e8ee; --guilloche:transparent;
   --brand:#5b4bff; --brand-ink:#ffffff; --lime:#d7f75b; --lime-ink:#1f2a00;
   --red:#ef4b5f; --blue:#3a7bff; --violet:#8a5cff; --green:#18b37e; --amber:#f59f0b; --teal:#10b3c4;
   --have:#0f9d6c; --have-soft:#e3f7ef; --need:#b86e00; --need-soft:#fff1db;
   --r-sm:12px; --r-md:20px;
 }
-@media (prefers-color-scheme: dark){
+@media (prefers-color-scheme: dark) and (max-width: 0px){
   :root{ --paper:#0d0e12; --page:#17191f; --ink:#f1f2f6; --muted:#9aa0b0; --line:#272a33;
     --brand:#7b6dff; --have:#4fd8a4; --have-soft:#123327; --need:#ffbf5c; --need-soft:#3a2a10; }
   .sheet ol li::before{background:var(--brand);color:#fff}
@@ -175,7 +176,7 @@ h2{font-size:22px}
 .crest{background:var(--lime);border-radius:14px;padding:7px;width:48px;height:48px}
 .crest{background:none;padding:0;width:58px;height:58px;border-radius:16px;box-shadow:0 8px 20px rgba(20,10,80,.35)}
 .nav{border:none;background:var(--page);box-shadow:0 1px 0 var(--line)}
-.nav .pick.on{background:var(--ink);color:var(--page)}
+.nav .pick.on{background:var(--brand);color:#fff}
 .card{border:none;box-shadow:0 1px 2px rgba(20,22,28,.05),0 8px 24px rgba(20,22,28,.05)}
 button.primary{background:var(--brand);color:#fff}
 .pick.on{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -183,7 +184,7 @@ button.primary{background:var(--brand);color:#fff}
 .chip button{color:var(--lime-ink)}
 input[type=text]{background:var(--paper);border-color:transparent}
 .photo-btn{border-style:solid;border-color:var(--line);background:var(--paper)}
-.go{background:var(--ink)!important;color:var(--page)!important;box-shadow:0 10px 30px rgba(20,22,28,.25)}
+.go{background:var(--brand)!important;color:#fff!important;box-shadow:0 10px 30px rgba(91,75,255,.35)}
 .stamps{grid-template-columns:repeat(3,1fr)}
 .stamp{transform:none!important;border:1.5px solid var(--line);border-radius:18px;background:var(--page);color:var(--ink);font-weight:600;min-height:84px;gap:6px}
 .stamp .em{font-size:26px}
