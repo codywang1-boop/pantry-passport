@@ -6,13 +6,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Pantry Passport">
-<meta name="theme-color" content="#123f3a">
+<meta name="theme-color" content="#5b4bff">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <title>Pantry Passport</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Familjen+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --cover:#123f3a; --cover-deep:#0b2a27; --gold:#d4b46a;
@@ -150,15 +150,60 @@ select.pick{padding:9px 12px}
 .form textarea{min-height:130px;resize:vertical;line-height:1.5}
 .form .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .hint{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* ===== Modern theme ===== */
+:root{
+  --paper:#f4f5f8; --page:#ffffff; --ink:#14161c; --muted:#6b7080; --line:#e6e8ee; --guilloche:transparent;
+  --brand:#5b4bff; --brand-ink:#ffffff; --lime:#d7f75b; --lime-ink:#1f2a00;
+  --red:#ef4b5f; --blue:#3a7bff; --violet:#8a5cff; --green:#18b37e; --amber:#f59f0b; --teal:#10b3c4;
+  --have:#0f9d6c; --have-soft:#e3f7ef; --need:#b86e00; --need-soft:#fff1db;
+  --r-sm:12px; --r-md:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --paper:#0d0e12; --page:#17191f; --ink:#f1f2f6; --muted:#9aa0b0; --line:#272a33;
+    --brand:#7b6dff; --have:#4fd8a4; --have-soft:#123327; --need:#ffbf5c; --need-soft:#3a2a10; }
+  .sheet ol li::before{background:var(--brand);color:#fff}
+  .nav .pick.on,.pick.on,button.primary{background:var(--brand)}
+}
+html,body{font-family:"Manrope",system-ui,sans-serif;background-image:none;background:var(--paper)}
+h2,.cover h1,.dish h3,.sheet h2{font-family:"Outfit",system-ui,sans-serif;font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px}
+.cover{background:var(--brand);background-image:none;border-bottom:none;margin:0 -16px 20px;padding:calc(30px + env(safe-area-inset-top)) 22px 26px;border-radius:0 0 28px 28px;color:#fff}
+.cover::after{display:none}
+.cover h1{color:#fff;font-size:34px}
+.cover p{color:rgba(255,255,255,.82)}
+.crest{background:var(--lime);border-radius:14px;padding:7px;width:48px;height:48px}
+.crest{background:none;padding:0;width:58px;height:58px;border-radius:16px;box-shadow:0 8px 20px rgba(20,10,80,.35)}
+.nav{border:none;background:var(--page);box-shadow:0 1px 0 var(--line)}
+.nav .pick.on{background:var(--ink);color:var(--page)}
+.card{border:none;box-shadow:0 1px 2px rgba(20,22,28,.05),0 8px 24px rgba(20,22,28,.05)}
+button.primary{background:var(--brand);color:#fff}
+.pick.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip{background:var(--lime);color:var(--lime-ink);font-weight:600}
+.chip button{color:var(--lime-ink)}
+input[type=text]{background:var(--paper);border-color:transparent}
+.photo-btn{border-style:solid;border-color:var(--line);background:var(--paper)}
+.go{background:var(--ink)!important;color:var(--page)!important;box-shadow:0 10px 30px rgba(20,22,28,.25)}
+.stamps{grid-template-columns:repeat(3,1fr)}
+.stamp{transform:none!important;border:1.5px solid var(--line);border-radius:18px;background:var(--page);color:var(--ink);font-weight:600;min-height:84px;gap:6px}
+.stamp .em{font-size:26px}
+.stamp.on{background:var(--brand);border-color:var(--brand);color:#fff;transform:none!important}
+.stamp.on::after{display:none}
+.stamp.listall{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
+.stamp.listall .em{font-size:24px;line-height:1}
+.dish{padding-left:18px}
+.dish::before{display:none}
+.flag{transform:none;border:none;background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 10px}
+.tag{font-weight:600}
+.bar{height:6px}
+.sheet{border-top:none;border-radius:28px 28px 0 0}
+.sheet ol li::before{background:var(--brand)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="cover">
-    <svg class="crest" viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="#d4b46a" stroke-width="1.6">
-      <circle cx="24" cy="24" r="21"/><ellipse cx="24" cy="24" rx="9" ry="21"/><path d="M3 24h42M6 13h36M6 35h36"/>
-      <path d="M17 9v10c0 2 1.5 3 3 3v17M20 9v8M23 9v10c0 2-1.5 3-3 3" stroke-width="2"/><path d="M31 9c-3 2-4 6-4 10s2 4 4 4v16" stroke-width="2"/>
-    </svg>
+    <img class="crest" src="icon-192.png" alt="" width="58" height="58">
     <h1>Pantry Passport</h1>
     <p>Tell it what's in your kitchen. Get dishes from around the world.</p>
   </header>
@@ -381,8 +426,9 @@ $("addForm").onsubmit = e => { e.preventDefault(); addIngs([$("ingInput").value]
 const INK={"All": "teal", "Chinese": "red", "Mexican": "green", "Italian": "blue", "Indian": "amber", "Japanese": "red", "Korean": "blue", "Thai": "violet", "Vietnamese": "green", "Mediterranean": "blue", "Middle Eastern": "amber", "French": "violet", "American": "red", "Caribbean & Latin": "teal", "African": "amber"};
 const TILT=[-2,1.5,-1,2,-1.5,1,-2.5,0.5];
 function renderCuisines(){
-  $("cuisines").innerHTML = Object.entries(CUISINES).map(([k,v],i)=>`<button class="stamp ${S.cuisine===k?"on":""}" aria-pressed="${S.cuisine===k}" style="--ink-c:var(--${INK[k]||"teal"});--tilt:${TILT[i%TILT.length]}deg" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"Surprise me":esc(k)}</button>`).join("");
-  $("cuisines").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.cuisine=b.dataset.c;S.region="";renderCuisines();});
+  $("cuisines").innerHTML = `<button class="stamp listall" id="listAll" aria-label="List all dishes"><span class="em">☰</span>List all</button>` + Object.entries(CUISINES).map(([k,v],i)=>`<button class="stamp ${S.cuisine===k?"on":""}" aria-pressed="${S.cuisine===k}" style="--ink-c:var(--${INK[k]||"teal"});--tilt:${TILT[i%TILT.length]}deg" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"Surprise me":esc(k)}</button>`).join("");
+  $("cuisines").querySelectorAll("button[data-c]").forEach(b=>b.onclick=()=>{S.cuisine=b.dataset.c;S.region="";renderCuisines();});
+  $("listAll").onclick=listAll;
   const regs = CUISINES[S.cuisine].regions;
   $("regionBox").classList.toggle("hidden", !regs.length);
   $("regions").innerHTML = ["Any",...regs].map(r=>`<button class="pick ${(S.region||"Any")===r?"on":""}" data-r="${esc(r)}">${esc(r)}</button>`).join("");
@@ -475,6 +521,21 @@ function localSearch(){
        ingredients:all.map(i=>({item:i,amount:""}))}; })
    .filter(r=>$("strict").checked ? (r.score===1 && r.missing.length<=2) : r.score>=0.5)
    .sort((a,b)=>(b.score-a.score)||(a.missing.length-b.missing.length));
+}
+
+// ---------- List all dishes (no ingredients needed) ----------
+function listAll(){
+  const have=[...S.ings,...S.staples].map(canon);
+  const book=BOOK.map(r=>{ const all=[...r.core,...r.extra];
+    return {...r, uses:all.filter(i=>has(have,i)), missing:all.filter(i=>!has(have,i)),
+      why:`A classic ${r.cuisine} dish, ${r.region} style.`, ingredients:all.map(i=>({item:i,amount:""}))}; });
+  const mineAll=mine.map(withUse);
+  const order=Object.keys(CUISINES);
+  S.results=mineAll.concat(book).sort((a,b)=>(order.indexOf(a.cuisine)-order.indexOf(b.cuisine))||a.name.localeCompare(b.name));
+  S.tab="All";
+  $("modeNote").textContent=`All ${S.results.length} dishes${mineAll.length?` (${mineAll.length} of yours)`:""}. Tap a culture to narrow it down.`;
+  renderResults();
+  $("results").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 // ---------- AI chef ----------

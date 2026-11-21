@@ -15,7 +15,7 @@ workflows:
       - name: App icon and splash
         script: |
           node make-icons.js
-          npx @capacitor/assets generate --ios --iconBackgroundColor '#123f3a' --splashBackgroundColor '#123f3a'
+          npx @capacitor/assets generate --ios --iconBackgroundColor '#5b4bff' --splashBackgroundColor '#5b4bff'
       - name: Sync web app into iOS
         script: npx cap sync ios
       - name: Camera and photo permissions
