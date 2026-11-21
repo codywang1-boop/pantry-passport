@@ -1,0 +1,9 @@
+{
+  "appId": "com.codywang.pantrypassport",
+  "appName": "Pantry Passport",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#123f3a"
+  }
+}
