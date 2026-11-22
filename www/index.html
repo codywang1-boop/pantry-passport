@@ -138,6 +138,30 @@ select.pick{padding:9px 12px}
 .ing li span:last-child{color:var(--muted);text-align:right}
 .ing li.need span:first-child::after{content:" (need)";color:var(--need);font-size:13px}
 .close{float:right}
+.sechead{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
+.sechead h2{margin:0}
+.helpbtn{width:28px;height:28px;padding:0;border-radius:50%;background:var(--page);border:1.5px solid var(--brand);color:var(--brand);font-weight:700;font-size:15px;line-height:1}
+.helpbtn[aria-expanded="true"]{background:var(--brand);color:#fff}
+.helpcard{background:var(--page);border:1.5px solid #dcd7ff;border-radius:var(--r-md);padding:14px 16px;margin-bottom:14px;font-size:15px;line-height:1.5}
+.helpcard ul{margin:8px 0 0;padding-left:20px}
+.helpcard li{margin:6px 0}
+.helpcard .ok{color:var(--have);font-weight:700}
+.helpcard .need{color:var(--need);font-weight:700}
+.havebox{background:var(--paper);border-radius:var(--r-md);padding:14px 16px;margin:12px 0 4px}
+.havetop{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.havetop b{font-family:"Outfit",sans-serif;font-size:18px}
+.havetop span{font-weight:700;color:var(--need)}
+.ing-check li{cursor:pointer;align-items:center}
+.ing-check li .mark{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.ing-check li.ok .mark{background:var(--have-soft);color:var(--have)}
+.ing-check li.need .mark{background:var(--need-soft);color:var(--need)}
+.ing-check li .nm{flex:1}
+.ing-check li.need span:first-child::after,.ing-check li.need .nm::after{content:none}
+.ing-check li .amt{color:var(--muted);text-align:right}
+.buybox{background:var(--need-soft);border-radius:var(--r-md);padding:14px 16px;margin-top:14px}
+.buybox ul{margin:0 0 12px;padding-left:20px}
+.buybox li{margin:4px 0;font-weight:600}
+.buybox li span{color:var(--muted);font-weight:400}
 .pic{width:100%;aspect-ratio:4/3;border-radius:var(--r-md);background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px;overflow:hidden;margin:12px 0 8px}
 .pic img{width:100%;height:100%;object-fit:cover;display:block}
 .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--cover);border-radius:50%;animation:spin 1s linear infinite;vertical-align:-3px;margin-right:8px}
@@ -192,6 +216,9 @@ input[type=text]{background:var(--paper);border-color:transparent}
 .stamp.on::after{display:none}
 .stamp.listall{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
 .stamp.listall .em{font-size:24px;line-height:1}
+.stamp.listall.on{background:#3a2fb8;border-color:#3a2fb8;color:#fff}
+.stamp{position:relative}
+.stamp .tick{position:absolute;top:6px;right:8px;width:20px;height:20px;border-radius:50%;background:#fff;color:var(--brand);font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
 .dish{padding-left:18px}
 .dish::before{display:none}
 .flag{transform:none;border:none;background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 10px}
@@ -245,6 +272,7 @@ input[type=text]{background:var(--paper);border-color:transparent}
 
     <div class="card">
       <h2>2. Pick a food culture</h2>
+      <div class="hint" id="pickNote" style="margin:-4px 0 10px"></div>
       <div class="stamps" id="cuisines"></div>
       <div id="regionBox" class="hidden">
         <div class="label">Regional style</div>
@@ -273,6 +301,8 @@ input[type=text]{background:var(--paper);border-color:transparent}
   </section>
 
   <section id="view-mine" class="hidden">
+    <div class="sechead"><h2>My recipes</h2><button class="helpbtn" aria-expanded="false" aria-controls="helpMine" aria-label="What is My recipes?">?</button></div>
+    <div class="helpcard hidden" id="helpMine"><b>My recipes</b> are your own dishes, like family recipes and favorites.<ul><li><b>＋ Type a recipe</b> to write one in, or <b>📷 Take photo of recipe</b> to scan a recipe card or cookbook page (any language).</li><li>Open a recipe to see what you already have <span class='ok'>✓</span> and what to buy <span class='need'>+</span>, with a shopping list you can copy.</li><li>When you tap <b>Find dishes</b> on the Cook tab, your recipes that match your ingredients show first, marked <b>Mine</b>.</li><li>Kept on this phone. Tap a recipe, then <b>✎ Edit</b> or <b>Delete</b> to change it.</li></ul></div>
     <button class="primary" id="newRecipe" style="width:100%;padding:14px;margin-bottom:8px">＋ Type a recipe</button>
     <div class="label ai-only" style="margin-top:4px">Scan from photo</div>
     <div class="row ai-only" id="scanLabel" style="gap:8px;margin-bottom:6px">
@@ -289,6 +319,8 @@ input[type=text]{background:var(--paper);border-color:transparent}
   </section>
 
   <section id="view-saved" class="hidden">
+    <div class="sechead"><h2>Saved</h2><button class="helpbtn" aria-expanded="false" aria-controls="helpSaved" aria-label="What is Saved?">?</button></div>
+    <div class="helpcard hidden" id="helpSaved"><b>Saved</b> is your bookmark list.<ul><li>When you see a dish you like on the Cook tab, open it and tap <b>☆ Save recipe</b>. It shows up here so you can find it again.</li><li>Tap <b>★ Saved</b> on a dish to remove it.</li><li>Want to change a saved dish? Open it and tap <b>＋ Copy to My recipes</b>, then edit your own copy.</li><li>Kept on this phone.</li></ul></div>
     <div id="savedList"></div>
   </section>
 </div>
@@ -388,7 +420,8 @@ const BOOK = [
 ];
 
 // ---------- State ----------
-const S = { ings:[], staples:new Set(["salt","pepper","cooking oil"]), cuisine:"All", region:"", results:[], tab:"All" };
+const S = { ings:[], staples:new Set(["salt","pepper","cooking oil"]), cuisines:new Set(), region:"", listing:false, results:[], tab:"All" };
+const chosen = c => S.cuisines.size===0 || S.cuisines.has(c);
 let sample = null, canImages = false, imgLimits = null;
 const $ = id => document.getElementById(id);
 const store = {
@@ -427,10 +460,22 @@ $("addForm").onsubmit = e => { e.preventDefault(); addIngs([$("ingInput").value]
 const INK={"All": "teal", "Chinese": "red", "Mexican": "green", "Italian": "blue", "Indian": "amber", "Japanese": "red", "Korean": "blue", "Thai": "violet", "Vietnamese": "green", "Mediterranean": "blue", "Middle Eastern": "amber", "French": "violet", "American": "red", "Caribbean & Latin": "teal", "African": "amber"};
 const TILT=[-2,1.5,-1,2,-1.5,1,-2.5,0.5];
 function renderCuisines(){
-  $("cuisines").innerHTML = `<button class="stamp listall" id="listAll" aria-label="List all dishes"><span class="em">☰</span>List all</button>` + Object.entries(CUISINES).map(([k,v],i)=>`<button class="stamp ${S.cuisine===k?"on":""}" aria-pressed="${S.cuisine===k}" style="--ink-c:var(--${INK[k]||"teal"});--tilt:${TILT[i%TILT.length]}deg" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"Surprise me":esc(k)}</button>`).join("");
-  $("cuisines").querySelectorAll("button[data-c]").forEach(b=>b.onclick=()=>{S.cuisine=b.dataset.c;S.region="";renderCuisines();});
-  $("listAll").onclick=listAll;
-  const regs = CUISINES[S.cuisine].regions;
+  const none=S.cuisines.size===0;
+  $("cuisines").innerHTML = `<button class="stamp listall ${S.listing?"on":""}" id="listAll" aria-pressed="${S.listing}" aria-label="List all dishes"><span class="em">☰</span>${S.listing?"Hide list":"List all"}</button>`
+    + Object.entries(CUISINES).map(([k,v])=>{ const on = k==="All" ? none : S.cuisines.has(k);
+      return `<button class="stamp ${on?"on":""}" aria-pressed="${on}" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"Surprise me":esc(k)}${on&&k!=="All"?'<span class="tick">✓</span>':""}</button>`; }).join("");
+  $("cuisines").querySelectorAll("button[data-c]").forEach(b=>b.onclick=()=>{
+    const c=b.dataset.c;
+    if(c==="All") S.cuisines.clear();
+    else if(S.cuisines.has(c)) S.cuisines.delete(c); else S.cuisines.add(c);
+    S.region="";
+    if(S.listing){ S.listing=false; S.results=[]; $("results").innerHTML=""; $("modeNote").textContent=""; }
+    renderCuisines();
+  });
+  $("listAll").onclick=()=>{ if(S.listing){ S.listing=false; S.results=[]; $("results").innerHTML=""; $("modeNote").textContent=""; renderCuisines(); } else listAll(); };
+  $("pickNote").textContent = none ? "Surprise me: dishes from all over the world. Tap cultures to choose one or more." : `${S.cuisines.size} chosen: ${[...S.cuisines].join(", ")}. Tap again to remove.`;
+  const one = S.cuisines.size===1 ? [...S.cuisines][0] : null;
+  const regs = one ? CUISINES[one].regions : [];
   $("regionBox").classList.toggle("hidden", !regs.length);
   $("regions").innerHTML = ["Any",...regs].map(r=>`<button class="pick ${(S.region||"Any")===r?"on":""}" data-r="${esc(r)}">${esc(r)}</button>`).join("");
   $("regions").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.region=b.dataset.r==="Any"?"":b.dataset.r;renderCuisines();});
@@ -512,7 +557,7 @@ function localSearch(){
   const have=[...S.ings,...S.staples].map(canon);
   const maxT=+$("time").value||999, diet=$("diet").value;
   const meat=["chicken","ground pork","ham","sausage"];
-  return BOOK.filter(r=>S.cuisine==="All"||r.cuisine===S.cuisine)
+  return BOOK.filter(r=>chosen(r.cuisine))
    .filter(r=>r.time<=maxT)
    .filter(r=>!(diet==="Vegetarian"||diet==="Vegan") || !r.core.some(c=>meat.includes(c)))
    .map(r=>{ const all=[...r.core,...r.extra];
@@ -525,27 +570,30 @@ function localSearch(){
 }
 
 // ---------- List all dishes (no ingredients needed) ----------
-function listAll(){
+function listAll(quiet){
+  S.listing=true;
   const have=[...S.ings,...S.staples].map(canon);
   const book=BOOK.map(r=>{ const all=[...r.core,...r.extra];
     return {...r, uses:all.filter(i=>has(have,i)), missing:all.filter(i=>!has(have,i)),
       why:`A classic ${r.cuisine} dish, ${r.region} style.`, ingredients:all.map(i=>({item:i,amount:""}))}; });
-  const mineAll=mine.map(withUse);
+  const mineAll=mine.filter(r=>chosen(r.cuisine)).map(withUse);
   const order=Object.keys(CUISINES);
-  S.results=mineAll.concat(book).sort((a,b)=>(order.indexOf(a.cuisine)-order.indexOf(b.cuisine))||a.name.localeCompare(b.name));
+  S.results=mineAll.concat(book.filter(r=>chosen(r.cuisine))).sort((a,b)=>(order.indexOf(a.cuisine)-order.indexOf(b.cuisine))||a.name.localeCompare(b.name));
   S.tab="All";
-  $("modeNote").textContent=`All ${S.results.length} dishes${mineAll.length?` (${mineAll.length} of yours)`:""}. Tap a culture to narrow it down.`;
-  renderResults();
-  $("results").scrollIntoView({behavior:"smooth",block:"start"});
+  $("modeNote").textContent=`${S.results.length} dishes${mineAll.length?` (${mineAll.length} of yours)`:""}${S.cuisines.size?" from your chosen cultures":""}. Tap Hide list to close.`;
+  renderCuisines(); renderResults();
+  if(!quiet) $("results").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 // ---------- AI chef ----------
 async function aiSearch(exclude=[]){
-  const cuisine=S.cuisine, region=S.region, strict=$("strict").checked;
+  const picks=[...S.cuisines], region=S.region, strict=$("strict").checked;
   const t=$("time").value, diet=$("diet").value, serves=$("serves").value;
-  const scope = cuisine==="All"
+  const scope = picks.length===0
     ? "Give 12 dishes from at least 8 DIFFERENT food cultures (e.g. Chinese, Mexican, Italian, Indian, Japanese, Korean, Thai, Vietnamese, Middle Eastern, West African, Caribbean...). Mix breakfasts, mains, soups, salads, snacks and sides."
-    : `Give 10 dishes, all from ${cuisine} cuisine${region?`, specifically the ${region} regional style`:", spread across different regional styles of that cuisine so the user learns how the regions differ"}. Mix mains, soups, sides, snacks and street food.`;
+    : picks.length>1
+    ? `Give 12 dishes, only from these food cultures: ${picks.join(", ")}. Spread them across all of them (at least 2 from each where it makes sense). Mix mains, soups, sides and snacks.`
+    : `Give 10 dishes, all from ${picks[0]} cuisine${region?`, specifically the ${region} regional style`:", spread across different regional styles of that cuisine so the user learns how the regions differ"}. Mix mains, soups, sides, snacks and street food.`;
   const avoid = exclude.length ? `\n- Do NOT repeat any of these dishes already shown: ${exclude.join("; ")}. Give different ones, including lesser-known home-style and regional dishes.` : "";
   const prompt =
 `You are a world-cuisine chef helping a home cook use what they already have.
@@ -586,7 +634,7 @@ $("goBtn").onclick = async () => {
       S.results = mineMatches().concat(localSearch());
       $("modeNote").textContent=`Matches from the built-in recipe book (${BOOK.length} dishes) and your own recipes.`;
     }
-    S.tab="All"; st.textContent=""; renderResults();
+    S.tab="All"; S.listing=false; renderCuisines(); st.textContent=""; renderResults();
     $("results").scrollIntoView({behavior:"smooth",block:"start"});
   } finally { $("goBtn").disabled=false; }
 };
@@ -639,26 +687,52 @@ try{ localStorage.removeItem("pp_pics"); }catch(e){}
 
 // ---------- Recipe sheet ----------
 function isSaved(d){ return saved.some(s=>s.name===d.name&&s.cuisine===d.cuisine); }
-function openDish(d){
-  const need=new Set(d.missing.map(norm));
+function haveNow(){ return [...S.ings,...S.staples].map(canon); }
+function toggleHave(item){
+  const have=haveNow();
+  if(has(have,item)){
+    const c=canon(item);
+    S.ings=S.ings.filter(x=>!has([canon(x)],c));
+    [...S.staples].forEach(x=>{ if(has([canon(x)],c)) S.staples.delete(x); });
+  } else { S.ings.push(norm(item)); }
+  store.set("pp_ings",S.ings); renderChips(); renderStaples();
+}
+function openDish(d, keepScroll){
+  const items=(d.ingredients&&d.ingredients.length?d.ingredients:[...(d.uses||[]),...(d.missing||[])].map(i=>({item:i,amount:""}))).filter(i=>i&&i.item);
+  const have=haveNow();
+  const rows=items.map(i=>({...i, ok:has(have,i.item)}));
+  const toBuy=rows.filter(r=>!r.ok), gotN=rows.length-toBuy.length;
+  const pct=rows.length?Math.round(gotN/rows.length*100):0;
+  const noneEntered=S.ings.length===0;
   const flag=(CUISINES[d.cuisine]||{}).flag||"🍽️";
+  const top=keepScroll?$("sheet").scrollTop:0;
   $("sheet").innerHTML = `<button class="ghost close" id="closeSheet">Close</button>
     <h2>${esc(d.name)}</h2>${d.native?`<div class="native">${esc(d.native)}</div>`:""}
     ${d.mine&&d.pic?`<div class="pic"><img alt="${esc(d.name)}" src="${d.pic}"></div>`:""}
     ${d.mine&&d.notes?`<p><i>${esc(d.notes)}</i></p>`:""}
     <div class="meta"><span>${flag} ${esc(d.cuisine)}${d.region?", "+esc(d.region):""}</span>${d.time?`<span>⏱ ${d.time} min</span>`:""}${d.diff?`<span>👩‍🍳 ${esc(d.diff)}</span>`:""}<span>🍽 serves ${esc($("serves").value)}</span></div>
     ${d.why&&!d.mine?`<p>${esc(d.why)}</p>`:""}
+    <div class="havebox">
+      <div class="havetop"><b>${toBuy.length? `You have ${gotN} of ${rows.length}` : `You have everything`}</b><span>${toBuy.length? `${toBuy.length} to buy` : "Ready to cook"}</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      ${noneEntered?`<div class="hint" style="margin-top:8px">Checked against your pantry basics only. Add what's in your kitchen on the Cook tab, or tap an ingredient below to mark it as "I have it".</div>`:`<div class="hint" style="margin-top:8px">Checked against your ingredients on the Cook tab. Tap any ingredient to change it.</div>`}
+    </div>
     <div class="label">Ingredients</div>
-    <ul class="ing">${d.ingredients.map(i=>`<li class="${need.has(norm(i.item))?"need":""}"><span>${esc(i.item)}</span><span>${esc(i.amount)}</span></li>`).join("")}</ul>
+    <ul class="ing ing-check">${rows.map((r,i)=>`<li class="${r.ok?"ok":"need"}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(r.item)}: ${r.ok?"you have it":"need to buy"}"><span class="mark">${r.ok?"✓":"+"}</span><span class="nm">${esc(r.item)}</span><span class="amt">${esc(r.amount||"")}</span></li>`).join("")}</ul>
+    ${toBuy.length?`<div class="buybox"><div class="label" style="margin-top:0">To buy (${toBuy.length})</div>
+      <ul>${toBuy.map(r=>`<li>${esc(r.item)}${r.amount?` <span>${esc(r.amount)}</span>`:""}</li>`).join("")}</ul>
+      <button class="primary" id="copyList" style="width:100%">Copy shopping list</button></div>`:""}
     <div class="label">Steps</div>
     <ol>${d.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
     <div class="row" style="margin-top:16px">
       ${d.mine?`<button class="primary" id="editMine">✎ Edit</button><button class="ghost" id="delMine">Delete</button>`
         :`<button class="primary" id="saveBtn">${isSaved(d)?"★ Saved":"☆ Save recipe"}</button><button id="copyMine">＋ Copy to My recipes</button>`}
-      ${d.missing.length?`<button id="copyList">Copy shopping list</button>`:""}
     </div><div class="status" id="sheetStatus"></div>`;
   $("overlay").classList.add("open");
+  $("sheet").scrollTop=top;
   $("closeSheet").onclick=closeSheet;
+  $("sheet").querySelectorAll(".ing-check li").forEach(li=>{ const go=()=>{ toggleHave(rows[+li.dataset.i].item); openDish(d,true); };
+    li.onclick=go; li.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
   if(d.mine){
     $("editMine").onclick=()=>openForm(mine.find(m=>m.id===d.id)||d);
     $("delMine").onclick=async()=>{ const b=$("delMine");
@@ -669,7 +743,8 @@ function openDish(d){
   }
   if($("saveBtn")) $("saveBtn").onclick=()=>{ if(isSaved(d)) saved=saved.filter(s=>!(s.name===d.name&&s.cuisine===d.cuisine)); else saved.unshift({...d});
     store.set("pp_saved",saved); $("saveBtn").textContent=isSaved(d)?"★ Saved":"☆ Save recipe"; renderSaved(); };
-  const cp=$("copyList"); if(cp) cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(`Shopping list for ${d.name}:\n- `+d.missing.join("\n- ")); $("sheetStatus").textContent="Copied."; }catch(e){ $("sheetStatus").textContent="Need to buy: "+d.missing.join(", "); } };
+  const cp=$("copyList"); if(cp) cp.onclick=async()=>{ const txt=`Shopping list for ${d.name}:\n`+toBuy.map(r=>"- "+r.item+(r.amount?` (${r.amount})`:"")).join("\n");
+    try{ await navigator.clipboard.writeText(txt); $("sheetStatus").textContent="Shopping list copied. Paste it into Notes or a text."; }catch(e){ $("sheetStatus").textContent="To buy: "+toBuy.map(r=>r.item).join(", "); } };
 }
 function closeSheet(){ $("overlay").classList.remove("open"); }
 $("overlay").onclick=e=>{ if(e.target.id==="overlay") closeSheet(); };
@@ -685,6 +760,11 @@ function showView(v){
   ["cook","mine","saved"].forEach(n=>$("view-"+n).classList.toggle("hidden",n!==v));
 }
 document.querySelectorAll(".nav .pick").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+
+document.querySelectorAll(".helpbtn").forEach(b=>b.onclick=()=>{
+  const card=$(b.getAttribute("aria-controls")); const open=card.classList.toggle("hidden")===false;
+  b.setAttribute("aria-expanded",open);
+});
 
 // ---------- My recipes (stored in your account when possible) ----------
 let mine = [], mineCol = null;
@@ -717,7 +797,7 @@ function withUse(r){
 function mineMatches(){
   if(!S.ings.length) return [];
   const maxT=+$("time").value||999, strict=$("strict").checked;
-  return mine.filter(r=>S.cuisine==="All"||r.cuisine===S.cuisine)
+  return mine.filter(r=>chosen(r.cuisine))
     .filter(r=>!r.time || r.time<=maxT).map(withUse)
     .filter(r=>strict ? r.missing.length===0 : r.score>=0.5)
     .sort((a,b)=>b.score-a.score);
