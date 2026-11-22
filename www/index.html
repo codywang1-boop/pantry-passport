@@ -593,10 +593,10 @@ async function aiSearch(exclude=[]){
   const picks=[...S.cuisines], region=S.region, strict=$("strict").checked;
   const t=$("time").value, diet=$("diet").value, serves=$("serves").value;
   const scope = picks.length===0
-    ? "Give 12 dishes from at least 8 DIFFERENT food cultures (e.g. Chinese, Mexican, Italian, Indian, Japanese, Korean, Thai, Vietnamese, Middle Eastern, West African, Caribbean...). Mix breakfasts, mains, soups, salads, snacks and sides."
+    ? "Give 6 dishes, each from a DIFFERENT food culture (e.g. Chinese, Mexican, Italian, Indian, Japanese, Korean, Thai, Vietnamese, Middle Eastern, West African, Caribbean...). Mix mains, soups, salads, snacks and sides."
     : picks.length>1
-    ? `Give 12 dishes, only from these food cultures: ${picks.join(", ")}. Spread them across all of them (at least 2 from each where it makes sense). Mix mains, soups, sides and snacks.`
-    : `Give 10 dishes, all from ${picks[0]} cuisine${region?`, specifically the ${region} regional style`:", spread across different regional styles of that cuisine so the user learns how the regions differ"}. Mix mains, soups, sides, snacks and street food.`;
+    ? `Give 6 dishes, only from these food cultures: ${picks.join(", ")}. Spread them across all of them. Mix mains, soups, sides and snacks.`
+    : `Give 6 dishes, all from ${picks[0]} cuisine${region?`, specifically the ${region} regional style`:", spread across different regional styles of that cuisine so the user learns how the regions differ"}. Mix mains, soups, sides, snacks and street food.`;
   const avoid = exclude.length ? `\n- Do NOT repeat any of these dishes already shown: ${exclude.join("; ")}. Give different ones, including lesser-known home-style and regional dishes.` : "";
   const prompt =
 `You are a world-cuisine chef helping a home cook use what they already have.
@@ -611,7 +611,7 @@ Rules:
 - Amounts for ${serves} servings, US measures.
 - Real dishes people actually cook in that culture; give the native-script name when there is one.
 - "region" = the regional style or country within the cuisine. "why" = one sentence about where it's from and why it fits these ingredients.
-- Steps: 4 to 8 short, clear steps.${avoid}
+- Steps: 4 to 6 short, clear steps. Keep "why" to one short sentence.${avoid}
 Return JSON only, no prose:
 {"dishes":[{"name":"","native":"","cuisine":"","region":"","why":"","time":0,"diff":"Easy|Medium|Hard","uses":["ingredients on hand used"],"missing":["items to buy"],"ingredients":[{"item":"","amount":""}],"steps":[""]}]}`;
   const out = await sample.json(prompt, {modelTier:"default"});

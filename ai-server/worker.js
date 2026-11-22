@@ -55,7 +55,7 @@ export default {
       },
       body: JSON.stringify({
         model: MODELS[body.tier] || MODELS.default,
-        max_tokens: 8000,
+        max_tokens: 16000,
         messages: [{ role: "user", content }],
       }),
     });
