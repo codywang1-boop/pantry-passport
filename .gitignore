@@ -8,3 +8,4 @@ ai-server/*.txt
 ai-server/deploy.ps1
 check-build.ps1
 ai-server/fix.ps1
+ai-server/set-key.ps1

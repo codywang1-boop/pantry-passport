@@ -16,6 +16,11 @@ const CORS = {
 const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", ...CORS } });
 
+function authHeaders(env) {
+  const k = String(env.ANTHROPIC_API_KEY || "").trim();
+  return k.startsWith("sk-ant-api") ? { "x-api-key": k } : { "authorization": "Bearer " + k };
+}
+
 export default {
   async fetch(req, env) {
     const origin = req.headers.get("Origin") || "";
@@ -44,7 +49,7 @@ export default {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        "x-api-key": env.ANTHROPIC_API_KEY,
+        ...authHeaders(env),
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
       },
@@ -54,8 +59,8 @@ export default {
         messages: [{ role: "user", content }],
       }),
     });
-    const data = await r.json().catch(() => ({}));
-    if (!r.ok) return json({ error: (data.error && data.error.message) || "Claude error" }, r.status === 429 ? 429 : 502);
+    const raw = await r.text(); let data = {}; try { data = JSON.parse(raw); } catch {}
+    if (!r.ok) return json({ error: (data.error && data.error.message) || ("Claude error " + r.status + " " + raw.slice(0, 200))) }, r.status === 429 ? 429 : 502);
     const text = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("");
     return json({ text, truncated: data.stop_reason === "max_tokens" });
   },
