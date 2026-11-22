@@ -463,7 +463,7 @@ function renderCuisines(){
   const none=S.cuisines.size===0;
   $("cuisines").innerHTML = `<button class="stamp listall ${S.listing?"on":""}" id="listAll" aria-pressed="${S.listing}" aria-label="List all dishes"><span class="em">☰</span>${S.listing?"Hide list":"List all"}</button>`
     + Object.entries(CUISINES).map(([k,v])=>{ const on = k==="All" ? none : S.cuisines.has(k);
-      return `<button class="stamp ${on?"on":""}" aria-pressed="${on}" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"Surprise me":esc(k)}${on&&k!=="All"?'<span class="tick">✓</span>':""}</button>`; }).join("");
+      return `<button class="stamp ${on?"on":""}" aria-pressed="${on}" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"All cultures":esc(k)}${on&&k!=="All"?'<span class="tick">✓</span>':""}</button>`; }).join("");
   $("cuisines").querySelectorAll("button[data-c]").forEach(b=>b.onclick=()=>{
     const c=b.dataset.c;
     if(c==="All") S.cuisines.clear();
@@ -473,7 +473,7 @@ function renderCuisines(){
     renderCuisines();
   });
   $("listAll").onclick=()=>{ if(S.listing){ S.listing=false; S.results=[]; $("results").innerHTML=""; $("modeNote").textContent=""; renderCuisines(); } else listAll(); };
-  $("pickNote").textContent = none ? "Surprise me: dishes from all over the world. Tap cultures to choose one or more." : `${S.cuisines.size} chosen: ${[...S.cuisines].join(", ")}. Tap again to remove.`;
+  $("pickNote").textContent = none ? "All cultures: dishes from all over the world. Tap cultures to choose one or more." : `${S.cuisines.size} chosen: ${[...S.cuisines].join(", ")}. Tap again to remove.`;
   const one = S.cuisines.size===1 ? [...S.cuisines][0] : null;
   const regs = one ? CUISINES[one].regions : [];
   $("regionBox").classList.toggle("hidden", !regs.length);
@@ -654,7 +654,7 @@ function dishCard(d, idx, src){
 }
 function renderResults(){
   const r=S.results, box=$("results");
-  if(!r.length){ box.innerHTML=`<div class="empty">No dishes matched. Try adding a few more ingredients, turning off "Only use what I have", or picking "Surprise me".</div>`; return; }
+  if(!r.length){ box.innerHTML=`<div class="empty">No dishes matched. Try adding a few more ingredients, turning off "Only use what I have", or picking "All cultures".</div>`; return; }
   const cuisines=[...new Set(r.map(d=>d.cuisine))];
   const shown=S.tab==="All"?r:r.filter(d=>d.cuisine===S.tab);
   box.innerHTML = `<h2>${r.length} dishes from ${cuisines.length} food culture${cuisines.length>1?"s":""}</h2>
