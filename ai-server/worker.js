@@ -1,11 +1,11 @@
-// Pantry Passport AI server (Cloudflare Worker).
+﻿// Pantry Passport AI server (Cloudflare Worker).
 // Keeps your Anthropic API key off the phone. The app sends a prompt (+ optional photos),
 // this server asks Claude and sends back the text.
 // Secret to set in Cloudflare: ANTHROPIC_API_KEY. Only the app's own pages may call it.
 
 const MODELS = { quick: "claude-haiku-5-5", default: "claude-sonnet-5-5", complex: "claude-sonnet-5-5" };
 // Only these pages may call the server (the web app and the iPhone app).
-const ALLOWED = ["https://codywang1-boop.github.io", "capacitor://localhost", "http://localhost"];
+const ALLOWED = ["https://codywang1-boop.github.io", "capacitor://localhost", "https://appassets.androidplatform.net", "http://localhost"];
 const DAILY_LIMIT = 40; // AI calls per visitor per day (best effort)
 const seen = new Map();
 const CORS = {

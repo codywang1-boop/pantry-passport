@@ -9,3 +9,12 @@ ai-server/deploy.ps1
 check-build.ps1
 ai-server/fix.ps1
 ai-server/set-key.ps1
+
+pp-android.zip
+setup-android.ps1
+build-debug.ps1
+build-debug.log
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties

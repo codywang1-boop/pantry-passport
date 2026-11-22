@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pantry Passport">
+<meta name="theme-color" content="#5b4bff">
+<meta name="color-scheme" content="light only">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<title>Pantry Passport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cover:#123f3a; --cover-deep:#0b2a27; --gold:#d4b46a;
+  --paper:#eef2ea; --page:#f8faf5; --ink:#1d2a28; --muted:#5f6f6b; --line:#cfd9d2;
+  --guilloche:rgba(18,63,58,.06);
+  --red:#b8323a; --blue:#2c56a0; --violet:#6a46a0; --green:#2b7a4b; --amber:#b06a12; --teal:#137a7f;
+  --have:#2b7a4b; --have-soft:#e1efe5; --need:#9a5a0c; --need-soft:#f6ead6;
+  --r-sm:8px; --r-md:14px;
+}
+@media (prefers-color-scheme: dark) and (max-width: 0px){
+  :root{ --paper:#0f1d1b; --page:#162724; --ink:#e7eee9; --muted:#9fb1ab; --line:#2c403c;
+    --guilloche:rgba(212,180,106,.05);
+    --red:#ef7b80; --blue:#8fb0ee; --violet:#b9a0e6; --green:#7fcf9c; --amber:#e9ae5f; --teal:#6ccfd3;
+    --have:#7fcf9c; --have-soft:#1d3528; --need:#e9ae5f; --need-soft:#3a2c16; }
+  .sheet ol li::before{background:var(--gold);color:#13201e}
+  .nav .pick.on,.pick.on,button.primary{background:#1f5a53}
+}
+*{box-sizing:border-box}
+html,body{margin:0;color:var(--ink);font:16px/1.55 "Familjen Grotesk",system-ui,sans-serif;
+  background-color:var(--paper);
+  background-image:repeating-radial-gradient(circle at 50% -20%, transparent 0 14px, var(--guilloche) 14px 15px);}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 90px}
+h2{font-family:"Rozha One",Georgia,serif;font-weight:400;font-size:24px;line-height:1.15;margin:0 0 12px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+
+/* Cover */
+.cover{margin:0 -16px 18px;padding:calc(28px + env(safe-area-inset-top)) 22px 22px;background:var(--cover);color:#f3ecd8;
+  background-image:linear-gradient(160deg,var(--cover) 40%,var(--cover-deep));border-bottom:4px solid var(--gold);position:relative;overflow:hidden}
+.cover::after{content:"";position:absolute;inset:10px;border:1px solid rgba(212,180,106,.45);border-radius:6px;pointer-events:none}
+.crest{width:46px;height:46px;margin-bottom:10px}
+.cover h1{font-family:"Rozha One",Georgia,serif;font-weight:400;font-size:40px;line-height:1;margin:0;color:var(--gold);letter-spacing:.01em}
+.cover p{margin:8px 0 0;color:#cfd8c8;max-width:34ch}
+
+/* Tabs */
+.nav{display:flex;gap:4px;margin-bottom:18px;background:var(--page);border:1px solid var(--line);border-radius:999px;padding:4px}
+.nav .pick{flex:1;border:none;background:transparent;border-radius:999px;padding:9px 6px;font-weight:600;color:var(--muted)}
+.nav .pick.on{background:var(--cover);color:#f3ecd8}
+
+/* Page panels */
+.card{background:var(--page);border:1px solid var(--line);border-radius:var(--r-md);padding:18px;margin-bottom:16px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input[type=text],select{font:inherit}
+input[type=text]{flex:1;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);color:var(--ink)}
+button{font:inherit;cursor:pointer;border:1px solid transparent;border-radius:var(--r-sm);padding:11px 16px;background:var(--paper);color:var(--ink);font-weight:600}
+button.primary{background:var(--cover);color:#f3ecd8}
+button.ghost{background:transparent;border-color:var(--line)}
+button:disabled{opacity:.5;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 12px;border-radius:999px;background:var(--have-soft);color:var(--ink);font-size:15px}
+.chip button{padding:0 6px;background:none;border:none;font-size:17px;line-height:1;color:var(--muted)}
+.pick{padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--page);color:var(--ink);font-weight:500;font-size:14px}
+.pick.on{background:var(--cover);color:#f3ecd8;border-color:var(--cover)}
+select.pick{padding:9px 12px}
+.label{font-size:14px;font-weight:700;color:var(--muted);margin:16px 0 6px}
+.label:first-child{margin-top:0}
+
+/* Stamps: the cuisine picker */
+.stamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:10px;margin-top:6px}
+.stamp{--ink-c:var(--teal);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  min-height:76px;padding:8px 6px;border:2px dashed var(--ink-c);border-radius:12px;background:transparent;color:var(--ink-c);
+  font-family:"Familjen Grotesk",sans-serif;font-weight:700;font-size:13px;line-height:1.15;text-align:center;
+  transform:rotate(var(--tilt,0deg));transition:transform .18s ease, background-color .18s ease}
+.stamp .em{font-size:22px;line-height:1}
+.stamp.on{background:var(--ink-c);color:var(--page);border-style:solid;transform:rotate(calc(var(--tilt,0deg) * -2)) scale(1.04)}
+.stamp.on::after{content:"";position:absolute;inset:4px;border:1px solid color-mix(in srgb,var(--page) 55%,transparent);border-radius:8px}
+@media (prefers-reduced-motion: reduce){ .stamp{transition:none} }
+
+.photo-btn{display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px dashed var(--line);border-radius:var(--r-sm);padding:14px;color:var(--ink);font-weight:600;cursor:pointer;margin-top:10px;background:var(--paper)}
+.photo-btn input{display:none}
+.preview{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.preview:empty{display:none}
+.tray{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.tray-item{position:relative;aspect-ratio:1}
+.tray-item img{width:100%;height:100%;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line);display:block}
+.tray-item button{position:absolute;top:-6px;right:-6px;width:26px;height:26px;padding:0;border-radius:50%;background:var(--ink);color:var(--page);font-size:16px;line-height:1;border:2px solid var(--page)}
+.tray-add{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px dashed var(--line);border-radius:var(--r-sm);color:var(--muted);font-size:22px;cursor:pointer;background:var(--paper)}
+.tray-add span{font-size:12px;font-weight:600}
+.tray-add input{display:none}
+.preview img{width:72px;height:72px;object-fit:cover;border-radius:var(--r-sm);border:1px solid var(--line)}
+.status{font-size:14px;color:var(--muted);margin-top:8px;min-height:20px}
+.status:empty{min-height:0;margin:0}
+.status.err{color:var(--red)}
+.toggle{display:flex;align-items:center;gap:10px;font-size:15px}
+.toggle input{width:20px;height:20px;accent-color:var(--cover)}
+.go{position:sticky;bottom:calc(14px + env(safe-area-inset-bottom));width:100%;padding:16px;font-size:17px;border-radius:999px;box-shadow:0 8px 24px rgba(11,42,39,.28)}
+.mode-note{font-size:13px;color:var(--muted);margin-top:8px}
+
+/* Results */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs .pick{white-space:nowrap}
+.dish{cursor:pointer;position:relative;padding-left:22px}
+.dish::before{content:"";position:absolute;left:8px;top:16px;bottom:16px;border-left:2px dotted var(--line)}
+.dish:active{transform:scale(.995)}
+.dish-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.dish h3{font-family:"Rozha One",Georgia,serif;font-weight:400;font-size:21px;margin:0;line-height:1.15}
+.native{color:var(--muted);font-size:15px;margin-top:2px}
+.flag{flex:none;font-size:12px;font-weight:700;padding:6px 9px;border:1.5px solid var(--ink-c,var(--teal));color:var(--ink-c,var(--teal));border-radius:8px;transform:rotate(-4deg);white-space:nowrap}
+.meta{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin:8px 0}
+.why{margin:6px 0 10px}
+.tag{display:inline-block;font-size:13px;padding:3px 9px;border-radius:999px;margin:2px 4px 2px 0}
+.tag.have{background:var(--have-soft);color:var(--have)}
+.tag.need{background:var(--need-soft);color:var(--need)}
+.bar{height:5px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--have)}
+.empty{text-align:center;color:var(--muted);padding:28px 12px}
+.mine-badge{font-family:"Familjen Grotesk",sans-serif;font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;border:1.5px solid var(--green);color:var(--green);margin-left:8px;vertical-align:4px}
+.thumb{width:76px;height:56px;border-radius:var(--r-sm);object-fit:cover;flex:none;margin-left:auto}
+
+/* Recipe sheet */
+.overlay{position:fixed;inset:0;background:rgba(8,26,24,.55);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.overlay.open{display:flex}
+.sheet{background:var(--page);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:22px 20px calc(44px + env(safe-area-inset-bottom));border-top:4px solid var(--gold);animation:rise .22s ease-out}
+@keyframes rise{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){ .sheet{animation:none} }
+.sheet h2{font-size:30px;margin-bottom:2px}
+.sheet ol{padding-left:0;list-style:none;counter-reset:step;margin:0}
+.sheet ol li{counter-increment:step;position:relative;padding:10px 0 10px 40px;border-bottom:1px solid var(--line)}
+.sheet ol li::before{content:counter(step);position:absolute;left:0;top:9px;width:28px;height:28px;border-radius:50%;background:var(--cover);color:#f3ecd8;font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center}
+.ing{list-style:none;padding:0;margin:0}
+.ing li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.ing li span:last-child{color:var(--muted);text-align:right}
+.ing li.need span:first-child::after{content:" (need)";color:var(--need);font-size:13px}
+.close{float:right}
+.premiumbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--page);border:1.5px solid #dcd7ff;border-radius:var(--r-md);padding:10px 12px 10px 16px;margin-bottom:14px;font-weight:600}
+.premiumbar button{padding:9px 14px;flex:none}
+.perks{padding-left:20px;margin:10px 0 14px}
+.perks li{margin:8px 0;line-height:1.45}
+.sechead{display:flex;align-items:center;gap:10px;margin:2px 0 12px}
+.sechead h2{margin:0}
+.helpbtn{width:28px;height:28px;padding:0;border-radius:50%;background:var(--page);border:1.5px solid var(--brand);color:var(--brand);font-weight:700;font-size:15px;line-height:1}
+.helpbtn[aria-expanded="true"]{background:var(--brand);color:#fff}
+.helpcard{background:var(--page);border:1.5px solid #dcd7ff;border-radius:var(--r-md);padding:14px 16px;margin-bottom:14px;font-size:15px;line-height:1.5}
+.helpcard ul{margin:8px 0 0;padding-left:20px}
+.helpcard li{margin:6px 0}
+.helpcard .ok{color:var(--have);font-weight:700}
+.helpcard .need{color:var(--need);font-weight:700}
+.havebox{background:var(--paper);border-radius:var(--r-md);padding:14px 16px;margin:12px 0 4px}
+.havetop{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.havetop b{font-family:"Outfit",sans-serif;font-size:18px}
+.havetop span{font-weight:700;color:var(--need)}
+.ing-check li{cursor:pointer;align-items:center}
+.ing-check li .mark{flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.ing-check li.ok .mark{background:var(--have-soft);color:var(--have)}
+.ing-check li.need .mark{background:var(--need-soft);color:var(--need)}
+.ing-check li .nm{flex:1}
+.ing-check li.need span:first-child::after,.ing-check li.need .nm::after{content:none}
+.ing-check li .amt{color:var(--muted);text-align:right}
+.buybox{background:var(--need-soft);border-radius:var(--r-md);padding:14px 16px;margin-top:14px}
+.buybox ul{margin:0 0 12px;padding-left:20px}
+.buybox li{margin:4px 0;font-weight:600}
+.buybox li span{color:var(--muted);font-weight:400}
+.pic{width:100%;aspect-ratio:4/3;border-radius:var(--r-md);background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:15px;overflow:hidden;margin:12px 0 8px}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--cover);border-radius:50%;animation:spin 1s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hidden{display:none!important}
+
+
+/* Form */
+.form label.f{display:block;font-size:14px;font-weight:700;color:var(--muted);margin:14px 0 5px}
+.form input[type=text],.form input[type=number],.form select,.form textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--paper);color:var(--ink);font:inherit}
+.form textarea{min-height:130px;resize:vertical;line-height:1.5}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hint{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* ===== Modern theme ===== */
+:root{
+  --paper:#f3f1ff; --page:#ffffff; --ink:#14161c; --muted:#6b7080; --line:#e6e8ee; --guilloche:transparent;
+  --brand:#5b4bff; --brand-ink:#ffffff; --lime:#d7f75b; --lime-ink:#1f2a00;
+  --red:#ef4b5f; --blue:#3a7bff; --violet:#8a5cff; --green:#18b37e; --amber:#f59f0b; --teal:#10b3c4;
+  --have:#0f9d6c; --have-soft:#e3f7ef; --need:#b86e00; --need-soft:#fff1db;
+  --r-sm:12px; --r-md:20px;
+}
+@media (prefers-color-scheme: dark) and (max-width: 0px){
+  :root{ --paper:#0d0e12; --page:#17191f; --ink:#f1f2f6; --muted:#9aa0b0; --line:#272a33;
+    --brand:#7b6dff; --have:#4fd8a4; --have-soft:#123327; --need:#ffbf5c; --need-soft:#3a2a10; }
+  .sheet ol li::before{background:var(--brand);color:#fff}
+  .nav .pick.on,.pick.on,button.primary{background:var(--brand)}
+}
+html,body{font-family:"Manrope",system-ui,sans-serif;background-image:none;background:var(--paper)}
+h2,.cover h1,.dish h3,.sheet h2{font-family:"Outfit",system-ui,sans-serif;font-weight:700;letter-spacing:-.01em}
+h2{font-size:22px}
+.cover{background:var(--brand);background-image:none;border-bottom:none;margin:0 -16px 20px;padding:calc(30px + env(safe-area-inset-top)) 22px 26px;border-radius:0 0 28px 28px;color:#fff}
+.cover::after{display:none}
+.cover h1{color:#fff;font-size:34px}
+.cover p{color:rgba(255,255,255,.82)}
+.crest{background:var(--lime);border-radius:14px;padding:7px;width:48px;height:48px}
+.crest{background:none;padding:0;width:58px;height:58px;border-radius:16px;box-shadow:0 8px 20px rgba(20,10,80,.35)}
+.nav{border:none;background:var(--page);box-shadow:0 1px 0 var(--line)}
+.nav .pick.on{background:var(--brand);color:#fff}
+.card{border:none;box-shadow:0 1px 2px rgba(20,22,28,.05),0 8px 24px rgba(20,22,28,.05)}
+button.primary{background:var(--brand);color:#fff}
+.pick.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip{background:var(--lime);color:var(--lime-ink);font-weight:600}
+.chip button{color:var(--lime-ink)}
+input[type=text]{background:var(--paper);border-color:transparent}
+.photo-btn{border-style:solid;border-color:var(--line);background:var(--paper)}
+.go{background:var(--brand)!important;color:#fff!important;box-shadow:0 10px 30px rgba(91,75,255,.35)}
+.stamps{grid-template-columns:repeat(3,1fr)}
+.stamp{transform:none!important;border:1.5px solid var(--line);border-radius:18px;background:var(--page);color:var(--ink);font-weight:600;min-height:84px;gap:6px}
+.stamp .em{font-size:26px}
+.stamp.on{background:var(--brand);border-color:var(--brand);color:#fff;transform:none!important}
+.stamp.on::after{display:none}
+.stamp.listall{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
+.stamp.listall .em{font-size:24px;line-height:1}
+.stamp .cnt{font-size:12px;font-weight:700;opacity:.8}
+.stamp .cnt::before{content:"("}.stamp .cnt::after{content:")"}
+.stamp.listall.on{background:#3a2fb8;border-color:#3a2fb8;color:#fff}
+.stamp{position:relative}
+.stamp .tick{position:absolute;top:6px;right:8px;width:20px;height:20px;border-radius:50%;background:#fff;color:var(--brand);font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.dish{padding-left:18px}
+.dish::before{display:none}
+.flag{transform:none;border:none;background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 10px}
+.tag{font-weight:600}
+.bar{height:6px}
+.sheet{border-top:none;border-radius:28px 28px 0 0}
+.sheet ol li::before{background:var(--brand)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="cover">
+    <img class="crest" src="icon-192.png" alt="" width="58" height="58">
+    <h1>Pantry Passport</h1>
+    <p>Tell it what's in your kitchen. Get dishes from around the world.</p>
+  </header>
+
+  <div class="nav">
+    <button class="pick on" data-view="cook">Cook</button>
+    <button class="pick" data-view="mine">My recipes <span id="mineCount"></span></button>
+    <button class="pick" data-view="saved">Saved <span id="savedCount"></span></button>
+  </div>
+
+  <section id="view-cook">
+    <div class="premiumbar hidden" id="premiumBar"></div>
+    <div class="card">
+      <h2>1. Your ingredients</h2>
+      <form id="addForm" class="row">
+        <input id="ingInput" type="text" placeholder="e.g. chicken, rice, eggs, tomato" autocomplete="off">
+        <button type="submit">Add</button>
+      </form>
+      <div class="row ai-only" id="photoLabel" style="gap:8px">
+        <label class="photo-btn" style="flex:1">
+          <input id="cameraInput" type="file" accept="image/*" capture="environment">
+          📷 Take photo
+        </label>
+        <label class="photo-btn" style="flex:1">
+          <input id="photoInput" type="file" accept="image/*" multiple>
+          🖼️ From gallery
+        </label>
+      </div>
+      <div class="preview tray" id="preview"></div>
+      <div class="row hidden" id="trayBar" style="margin-top:10px">
+        <button class="primary" id="readTray" style="flex:1">Find ingredients</button>
+        <button class="ghost" id="clearTray">Clear</button>
+      </div>
+      <div class="status" id="photoStatus"></div>
+      <div class="chips" id="chips"></div>
+      <div class="label">Pantry basics I always have</div>
+      <div class="chips" id="staples"></div>
+    </div>
+
+    <div class="card">
+      <h2>2. Pick a food culture</h2>
+      <div class="hint" id="pickNote" style="margin:-4px 0 10px"></div>
+      <div class="stamps" id="cuisines"></div>
+      <div id="regionBox" class="hidden">
+        <div class="label">Regional style</div>
+        <div class="chips" id="regions"></div>
+      </div>
+      <div class="label">Options</div>
+      <div class="row" style="gap:6px">
+        <select id="time" class="pick">
+          <option value="">Any time</option><option value="20">≤ 20 min</option><option value="40">≤ 40 min</option><option value="60">≤ 1 hour</option>
+        </select>
+        <select id="diet" class="pick">
+          <option value="">No diet limit</option><option>Vegetarian</option><option>Vegan</option><option>Gluten-free</option><option>Dairy-free</option><option>Halal</option>
+        </select>
+        <select id="serves" class="pick">
+          <option value="2">Serves 2</option><option value="1">Serves 1</option><option value="4" selected>Serves 4</option><option value="6">Serves 6</option>
+        </select>
+      </div>
+      <label class="toggle" style="margin-top:12px"><input type="checkbox" id="strict"> Only use what I have (no shopping)</label>
+    </div>
+
+    <button class="primary go" id="goBtn">Find dishes</button>
+    <div class="status" id="goStatus"></div>
+    <div class="mode-note" id="modeNote"></div>
+
+    <div id="results" style="margin-top:16px"></div>
+  </section>
+
+  <section id="view-mine" class="hidden">
+    <div class="sechead"><h2>My recipes</h2><button class="helpbtn" aria-expanded="false" aria-controls="helpMine" aria-label="What is My recipes?">?</button></div>
+    <div class="helpcard hidden" id="helpMine"><b>My recipes</b> are your own dishes, like family recipes and favorites.<ul><li><b>＋ Type a recipe</b> to write one in, or <b>📷 Take photo of recipe</b> to scan a recipe card or cookbook page (any language).</li><li>Open a recipe to see what you already have <span class='ok'>✓</span> and what to buy <span class='need'>+</span>, with a shopping list you can copy.</li><li>When you tap <b>Find dishes</b> on the Cook tab, your recipes that match your ingredients show first, marked <b>Mine</b>.</li><li>Kept on this phone. Tap a recipe, then <b>✎ Edit</b> or <b>Delete</b> to change it.</li></ul></div>
+    <button class="primary" id="newRecipe" style="width:100%;padding:14px;margin-bottom:8px">＋ Type a recipe</button>
+    <div class="label ai-only" style="margin-top:4px">Scan from photo</div>
+    <div class="row ai-only" id="scanLabel" style="gap:8px;margin-bottom:6px">
+      <label class="photo-btn" style="flex:1;margin-top:0;padding:12px;border-style:solid;background:var(--accent-soft);color:var(--ink)">
+        <input type="file" id="scanCamera" accept="image/*" capture="environment">📷 Take photo of recipe
+      </label>
+      <label class="photo-btn" style="flex:1;margin-top:0;padding:12px;border-style:solid;background:var(--accent-soft);color:var(--ink)">
+        <input type="file" id="scanInput" accept="image/*" multiple>🖼️ From gallery
+      </label>
+    </div>
+    <div class="hint ai-only" style="margin-bottom:12px">Scan a recipe card, cookbook page, handwritten note or screenshot. Up to 4 photos for one recipe (e.g. front and back). You can check and fix it before saving.</div>
+    <div class="status" id="mineStatus"></div>
+    <div id="mineList"></div>
+  </section>
+
+  <section id="view-saved" class="hidden">
+    <div class="sechead"><h2>Saved</h2><button class="helpbtn" aria-expanded="false" aria-controls="helpSaved" aria-label="What is Saved?">?</button></div>
+    <div class="helpcard hidden" id="helpSaved"><b>Saved</b> is your bookmark list.<ul><li>When you see a dish you like on the Cook tab, open it and tap <b>☆ Save recipe</b>. It shows up here so you can find it again.</li><li>Tap <b>★ Saved</b> on a dish to remove it.</li><li>Want to change a saved dish? Open it and tap <b>＋ Copy to My recipes</b>, then edit your own copy.</li><li>Kept on this phone.</li></ul></div>
+    <div id="savedList"></div>
+  </section>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script src="ai-bridge.js"></script>
+<script>
+// ---------- Data ----------
+const CUISINES = {
+  "All":{flag:"🌍",regions:[]},
+  "Chinese":{flag:"🇨🇳",regions:["Sichuan","Cantonese","Hunan","Shandong","Jiangsu","Taiwanese"]},
+  "Mexican":{flag:"🇲🇽",regions:["Oaxacan","Yucatán","Northern","Central","Tex-Mex"]},
+  "Italian":{flag:"🇮🇹",regions:["Tuscan","Roman","Sicilian","Neapolitan","Emilian"]},
+  "Indian":{flag:"🇮🇳",regions:["Punjabi","South Indian","Bengali","Gujarati","Goan"]},
+  "Japanese":{flag:"🇯🇵",regions:["Home-style","Izakaya","Ramen & noodles","Okinawan"]},
+  "Korean":{flag:"🇰🇷",regions:["Home-style","Street food","Temple food"]},
+  "Thai":{flag:"🇹🇭",regions:["Central","Northern","Isan","Southern"]},
+  "Vietnamese":{flag:"🇻🇳",regions:["Northern","Central","Southern"]},
+  "Mediterranean":{flag:"🇬🇷",regions:["Greek","Spanish","Turkish","Lebanese"]},
+  "Middle Eastern":{flag:"🧆",regions:["Levantine","Persian","Gulf","Moroccan"]},
+  "French":{flag:"🇫🇷",regions:["Bistro","Provençal","Lyonnaise","Breton"]},
+  "American":{flag:"🇺🇸",regions:["Southern","Comfort food","Cajun & Creole","Southwest"]},
+  "Caribbean & Latin":{flag:"🌴",regions:["Jamaican","Cuban","Puerto Rican","Peruvian","Brazilian"]},
+  "African":{flag:"🌍",regions:["West African","Ethiopian","North African","South African"]}
+};
+const STAPLES = ["salt","pepper","cooking oil","sugar","garlic","onion","soy sauce","flour","butter","vinegar"];
+
+// Built-in recipe book (used when the AI chef isn't available)
+const BOOK = [
+ {name:"Tomato & Egg Stir-fry",native:"番茄炒蛋",cuisine:"Chinese",region:"Home-style",time:15,diff:"Easy",core:["egg","tomato"],extra:["scallion","sugar","salt","cooking oil"],steps:["Beat eggs with a pinch of salt; cut tomatoes into wedges.","Scramble eggs in hot oil until just set, then remove.","Cook tomatoes with a little sugar and salt until saucy.","Return eggs, toss, top with scallion."]},
+ {name:"Egg Fried Rice",native:"蛋炒饭",cuisine:"Chinese",region:"Cantonese",time:15,diff:"Easy",core:["rice","egg"],extra:["scallion","soy sauce","cooking oil"],steps:["Use cold cooked rice, break up clumps.","Scramble eggs in a hot wok.","Add rice, stir-fry on high heat 3–4 min.","Season with soy sauce, finish with scallion."]},
+ {name:"Mapo Tofu",native:"麻婆豆腐",cuisine:"Chinese",region:"Sichuan",time:25,diff:"Medium",core:["tofu","ground pork"],extra:["doubanjiang","garlic","sichuan pepper","scallion"],steps:["Cube tofu and blanch in salted water.","Brown pork, add doubanjiang and garlic.","Add water, then tofu; simmer 5 min.","Thicken with starch, top with Sichuan pepper and scallion."]},
+ {name:"Kung Pao Chicken",native:"宫保鸡丁",cuisine:"Chinese",region:"Sichuan",time:25,diff:"Medium",core:["chicken","peanut"],extra:["dried chili","soy sauce","vinegar","sugar","garlic"],steps:["Dice chicken and marinate in soy and starch.","Fry dried chilies briefly, add chicken.","Add sauce of soy, vinegar, sugar.","Toss in peanuts and serve."]},
+ {name:"Chicken Quesadillas",native:"",cuisine:"Mexican",region:"Northern",time:20,diff:"Easy",core:["tortilla","cheese","chicken"],extra:["onion","pepper"],steps:["Cook sliced chicken and onion.","Fill tortillas with chicken and cheese.","Toast in a dry pan until golden on both sides.","Cut into wedges."]},
+ {name:"Huevos Rancheros",native:"",cuisine:"Mexican",region:"Central",time:20,diff:"Easy",core:["egg","tortilla","tomato"],extra:["onion","chili","beans"],steps:["Simmer tomato, onion and chili into salsa.","Warm tortillas.","Fry eggs.","Layer tortilla, egg and salsa."]},
+ {name:"Black Bean Tacos",native:"",cuisine:"Mexican",region:"Tex-Mex",time:15,diff:"Easy",core:["tortilla","black beans"],extra:["onion","lime","cheese","cumin"],steps:["Cook onion, add beans and cumin, mash slightly.","Warm tortillas.","Fill and top with cheese and lime."]},
+ {name:"Spaghetti Aglio e Olio",native:"",cuisine:"Italian",region:"Neapolitan",time:15,diff:"Easy",core:["pasta","garlic"],extra:["olive oil","chili flakes","parsley"],steps:["Boil pasta in salted water.","Gently fry sliced garlic and chili in olive oil.","Toss pasta with the oil and a splash of pasta water.","Finish with parsley."]},
+ {name:"Pasta al Pomodoro",native:"",cuisine:"Italian",region:"Roman",time:25,diff:"Easy",core:["pasta","tomato"],extra:["garlic","olive oil","basil","cheese"],steps:["Cook garlic in olive oil.","Add chopped tomatoes, simmer 15 min.","Toss with cooked pasta.","Add basil and cheese."]},
+ {name:"Frittata",native:"",cuisine:"Italian",region:"Home-style",time:20,diff:"Easy",core:["egg","cheese"],extra:["onion","potato","spinach"],steps:["Cook vegetables in an oven-safe pan.","Pour beaten eggs and cheese over.","Cook on low until edges set.","Finish under the broiler."]},
+ {name:"Chana Masala",native:"",cuisine:"Indian",region:"Punjabi",time:30,diff:"Easy",core:["chickpeas","tomato","onion"],extra:["garlic","ginger","garam masala","cumin"],steps:["Fry onion until golden, add garlic and ginger.","Add spices, then tomato; cook to a paste.","Add chickpeas and water, simmer 15 min.","Finish with garam masala."]},
+ {name:"Egg Curry",native:"",cuisine:"Indian",region:"Bengali",time:30,diff:"Medium",core:["egg","onion","tomato"],extra:["ginger","garlic","turmeric","chili"],steps:["Hard-boil and peel eggs, fry lightly with turmeric.","Make onion-tomato masala with spices.","Add water and eggs, simmer 10 min."]},
+ {name:"Jeera Rice & Dal",native:"",cuisine:"Indian",region:"Gujarati",time:35,diff:"Easy",core:["rice","lentils"],extra:["cumin","turmeric","onion","garlic"],steps:["Cook lentils with turmeric until soft.","Temper cumin, garlic and onion in oil, pour into dal.","Cook rice with toasted cumin seeds."]},
+ {name:"Oyakodon",native:"親子丼",cuisine:"Japanese",region:"Home-style",time:20,diff:"Easy",core:["chicken","egg","rice"],extra:["onion","soy sauce","sugar"],steps:["Simmer onion in soy, sugar and water.","Add chicken pieces and cook through.","Pour beaten egg over, cover until just set.","Slide onto rice."]},
+ {name:"Tamagoyaki",native:"卵焼き",cuisine:"Japanese",region:"Home-style",time:15,diff:"Medium",core:["egg"],extra:["sugar","soy sauce"],steps:["Beat eggs with sugar and soy.","Pour a thin layer, roll it up.","Repeat layers, rolling each time.","Slice."]},
+ {name:"Kimchi Fried Rice",native:"김치볶음밥",cuisine:"Korean",region:"Home-style",time:15,diff:"Easy",core:["rice","kimchi"],extra:["egg","gochujang","sesame oil"],steps:["Fry chopped kimchi in oil.","Add rice and gochujang, stir-fry.","Drizzle sesame oil, top with fried egg."]},
+ {name:"Gyeran-jjim",native:"계란찜",cuisine:"Korean",region:"Home-style",time:15,diff:"Easy",core:["egg"],extra:["scallion","salt"],steps:["Whisk eggs with water and salt.","Heat in a small pot, stirring, until fluffy.","Cover and steam 2 min, top with scallion."]},
+ {name:"Pad Krapow",native:"ผัดกะเพรา",cuisine:"Thai",region:"Central",time:15,diff:"Easy",core:["chicken","basil","rice"],extra:["garlic","chili","fish sauce","soy sauce"],steps:["Pound garlic and chili.","Stir-fry with minced chicken.","Season with fish and soy sauce.","Add basil, serve on rice with a fried egg."]},
+ {name:"Thai Green Curry",native:"แกงเขียวหวาน",cuisine:"Thai",region:"Central",time:30,diff:"Medium",core:["coconut milk","chicken"],extra:["green curry paste","fish sauce","basil"],steps:["Fry curry paste in a little coconut cream.","Add chicken, then coconut milk.","Simmer 10 min, season with fish sauce.","Add basil."]},
+ {name:"Shakshuka",native:"شكشوكة",cuisine:"Middle Eastern",region:"Moroccan",time:25,diff:"Easy",core:["egg","tomato"],extra:["onion","pepper","cumin","paprika"],steps:["Cook onion and pepper.","Add tomatoes and spices, simmer to a sauce.","Make wells, crack in eggs.","Cover until whites set."]},
+ {name:"Greek Salad",native:"Χωριάτικη",cuisine:"Mediterranean",region:"Greek",time:10,diff:"Easy",core:["tomato","cucumber","feta"],extra:["onion","olive","olive oil","oregano"],steps:["Cut tomato, cucumber and onion into chunks.","Add olives and a slab of feta.","Dress with olive oil and oregano."]},
+ {name:"Spanish Tortilla",native:"Tortilla de patatas",cuisine:"Mediterranean",region:"Spanish",time:35,diff:"Medium",core:["potato","egg"],extra:["onion","olive oil"],steps:["Slowly cook sliced potato and onion in olive oil.","Mix into beaten eggs.","Cook in a pan, flip with a plate, cook other side."]},
+ {name:"Omelette aux Fines Herbes",native:"",cuisine:"French",region:"Bistro",time:10,diff:"Medium",core:["egg","butter"],extra:["herbs","salt"],steps:["Beat eggs with salt.","Cook in foaming butter, stirring then still.","Add herbs, fold into thirds."]},
+ {name:"Croque Monsieur",native:"",cuisine:"French",region:"Bistro",time:20,diff:"Easy",core:["bread","ham","cheese"],extra:["butter","milk","flour"],steps:["Make a quick white sauce with butter, flour, milk.","Build ham and cheese sandwiches.","Top with sauce and cheese, bake until bubbly."]},
+ {name:"Chicken & Rice Casserole",native:"",cuisine:"American",region:"Comfort food",time:50,diff:"Easy",core:["chicken","rice"],extra:["onion","broth","cheese"],steps:["Mix rice, broth and onion in a baking dish.","Lay chicken on top, season.","Cover and bake 40 min, add cheese at the end."]},
+ {name:"Red Beans & Rice",native:"",cuisine:"American",region:"Cajun & Creole",time:45,diff:"Easy",core:["beans","rice","sausage"],extra:["onion","pepper","celery","garlic"],steps:["Brown sausage, add onion, pepper, celery.","Add beans and water, simmer 30 min.","Mash some beans for creaminess, serve over rice."]},
+ {name:"Jamaican Rice & Peas",native:"",cuisine:"Caribbean & Latin",region:"Jamaican",time:35,diff:"Easy",core:["rice","beans","coconut milk"],extra:["thyme","scallion","allspice"],steps:["Simmer beans with coconut milk, thyme, scallion.","Add rice and water.","Cover and cook on low 20 min."]},
+ {name:"Jollof Rice",native:"",cuisine:"African",region:"West African",time:45,diff:"Medium",core:["rice","tomato","onion"],extra:["pepper","tomato paste","thyme","curry powder"],steps:["Blend tomato, pepper and onion; fry the purée with tomato paste.","Add spices and stock.","Stir in rice, cover and cook low until done."]},
+ {name:"Beef & Broccoli",native:"西兰花牛肉",cuisine:"Chinese",region:"Cantonese",time:20,diff:"Easy",core:["beef","broccoli"],extra:["soy sauce","garlic","ginger","oyster sauce"],steps:["Slice beef thin, marinate in soy and starch.","Blanch broccoli 1 min.","Sear beef in a hot wok, remove.","Stir-fry garlic and ginger, add broccoli, beef and oyster sauce."]},
+ {name:"Hot & Sour Potato Shreds",native:"酸辣土豆丝",cuisine:"Chinese",region:"Sichuan",time:15,diff:"Easy",core:["potato"],extra:["vinegar","dried chili","garlic","salt"],steps:["Julienne potato, rinse off starch.","Fry chili and garlic in oil.","Stir-fry potato 2–3 min on high heat.","Season with vinegar and salt."]},
+ {name:"Hunan Chili Pork",native:"小炒肉",cuisine:"Chinese",region:"Hunan",time:20,diff:"Medium",core:["pork","chili"],extra:["garlic","soy sauce","fermented black beans"],steps:["Slice pork thin.","Render pork until edges crisp.","Add chili, garlic and black beans.","Season with soy, toss and serve."]},
+ {name:"Scallion Pancakes",native:"葱油饼",cuisine:"Chinese",region:"Taiwanese",time:40,diff:"Medium",core:["flour","scallion"],extra:["cooking oil","salt"],steps:["Mix flour with hot water to a soft dough, rest 20 min.","Roll thin, brush oil, sprinkle scallion and salt.","Roll up, coil, flatten.","Pan-fry until crisp both sides."]},
+ {name:"Chicken Enchiladas",native:"",cuisine:"Mexican",region:"Central",time:40,diff:"Medium",core:["tortilla","chicken","cheese"],extra:["tomato","chili","onion"],steps:["Blend tomato, chili and onion; simmer into sauce.","Fill tortillas with shredded chicken.","Lay in dish, cover with sauce and cheese.","Bake 20 min."]},
+ {name:"Chilaquiles",native:"",cuisine:"Mexican",region:"Central",time:20,diff:"Easy",core:["tortilla","tomato"],extra:["egg","onion","cheese","chili"],steps:["Cut tortillas into wedges and fry crisp.","Simmer a tomato-chili salsa.","Toss chips in salsa.","Top with fried egg, onion and cheese."]},
+ {name:"Sopa de Lima",native:"",cuisine:"Mexican",region:"Yucatán",time:40,diff:"Medium",core:["chicken","lime"],extra:["tomato","onion","tortilla","oregano"],steps:["Simmer chicken with onion and oregano.","Add tomato, shred chicken.","Finish with lime juice.","Top with fried tortilla strips."]},
+ {name:"Risotto",native:"",cuisine:"Italian",region:"Northern",time:35,diff:"Medium",core:["rice","cheese"],extra:["onion","butter","broth"],steps:["Soften onion in butter.","Toast rice, then add hot broth a ladle at a time, stirring.","Cook 18–20 min until creamy.","Stir in cheese and butter."]},
+ {name:"Pasta e Fagioli",native:"",cuisine:"Italian",region:"Tuscan",time:35,diff:"Easy",core:["pasta","beans"],extra:["tomato","onion","garlic","olive oil"],steps:["Cook onion and garlic in olive oil.","Add tomato, beans and water; simmer 10 min.","Add small pasta and cook until tender.","Finish with olive oil."]},
+ {name:"Chicken Cacciatore",native:"",cuisine:"Italian",region:"Central",time:50,diff:"Medium",core:["chicken","tomato"],extra:["onion","pepper","garlic","olive oil"],steps:["Brown chicken pieces.","Cook onion, pepper and garlic.","Add tomato, return chicken.","Simmer covered 30 min."]},
+ {name:"Aloo Gobi",native:"आलू गोभी",cuisine:"Indian",region:"Punjabi",time:30,diff:"Easy",core:["potato","cauliflower"],extra:["onion","turmeric","cumin","ginger"],steps:["Toast cumin, add onion and ginger.","Add potato, cauliflower and turmeric.","Cover and cook on low 15–20 min.","Finish with garam masala."]},
+ {name:"Lemon Rice",native:"",cuisine:"Indian",region:"South Indian",time:20,diff:"Easy",core:["rice","lemon"],extra:["peanut","turmeric","mustard seeds","curry leaves"],steps:["Fry mustard seeds, peanuts and curry leaves.","Add turmeric.","Toss in cooked rice.","Squeeze in lemon juice."]},
+ {name:"Butter Chicken",native:"मुर्ग़ मखनी",cuisine:"Indian",region:"Punjabi",time:45,diff:"Medium",core:["chicken","tomato","butter"],extra:["cream","garlic","ginger","garam masala"],steps:["Marinate chicken in spices; sear.","Cook tomato, garlic and ginger into a sauce.","Blend, add butter and cream.","Simmer chicken in sauce 10 min."]},
+ {name:"Chicken Teriyaki",native:"照り焼き",cuisine:"Japanese",region:"Home-style",time:20,diff:"Easy",core:["chicken","soy sauce"],extra:["sugar","rice"],steps:["Pan-fry chicken skin-side down until crisp.","Flip and cook through.","Add soy, sugar and a splash of water; reduce to a glaze.","Slice, serve on rice."]},
+ {name:"Yaki Udon",native:"焼きうどん",cuisine:"Japanese",region:"Izakaya",time:15,diff:"Easy",core:["udon"],extra:["cabbage","pork","soy sauce","onion"],steps:["Stir-fry pork and vegetables.","Add loosened udon.","Season with soy sauce.","Toss until glossy."]},
+ {name:"Bibimbap",native:"비빔밥",cuisine:"Korean",region:"Home-style",time:30,diff:"Medium",core:["rice","egg"],extra:["spinach","carrot","gochujang","sesame oil"],steps:["Sauté each vegetable separately with sesame oil.","Fry an egg.","Arrange over rice.","Mix with gochujang."]},
+ {name:"Tteokbokki",native:"떡볶이",cuisine:"Korean",region:"Street food",time:20,diff:"Easy",core:["rice cakes"],extra:["gochujang","sugar","scallion","fish cake"],steps:["Boil water with gochujang and sugar.","Add rice cakes and fish cake.","Simmer until sauce thickens.","Top with scallion."]},
+ {name:"Pad Thai",native:"ผัดไทย",cuisine:"Thai",region:"Central",time:25,diff:"Medium",core:["rice noodles","egg"],extra:["peanut","tamarind","fish sauce","sugar","bean sprouts"],steps:["Soak noodles.","Scramble egg in a wok, add noodles.","Add tamarind, fish sauce and sugar.","Toss with sprouts, top with peanuts."]},
+ {name:"Tom Kha Gai",native:"ต้มข่าไก่",cuisine:"Thai",region:"Central",time:25,diff:"Easy",core:["chicken","coconut milk"],extra:["lime","fish sauce","ginger","mushroom"],steps:["Simmer coconut milk with ginger.","Add chicken and mushroom, cook through.","Season with fish sauce and lime."]},
+ {name:"Larb",native:"ลาบ",cuisine:"Thai",region:"Isan",time:20,diff:"Easy",core:["ground pork","lime"],extra:["fish sauce","onion","herbs","chili"],steps:["Cook pork with a splash of water.","Season with lime, fish sauce, chili.","Toss with onion and herbs."]},
+ {name:"Bánh Mì",native:"Bánh mì",cuisine:"Vietnamese",region:"Southern",time:25,diff:"Easy",core:["bread","pork"],extra:["carrot","cucumber","herbs","mayonnaise"],steps:["Quick-pickle carrot in vinegar and sugar.","Cook seasoned pork.","Fill bread with pork, pickles, cucumber, herbs."]},
+ {name:"Cơm Chiên",native:"Cơm chiên",cuisine:"Vietnamese",region:"Southern",time:15,diff:"Easy",core:["rice","egg"],extra:["fish sauce","garlic","scallion"],steps:["Fry garlic, add egg.","Add rice and fish sauce.","Stir-fry until hot, add scallion."]},
+ {name:"Hummus & Pita",native:"حمص",cuisine:"Middle Eastern",region:"Levantine",time:10,diff:"Easy",core:["chickpeas"],extra:["tahini","lemon","garlic","olive oil"],steps:["Blend chickpeas, tahini, lemon, garlic.","Add ice water until smooth.","Top with olive oil."]},
+ {name:"Mujaddara",native:"مجدرة",cuisine:"Middle Eastern",region:"Levantine",time:45,diff:"Easy",core:["lentils","rice","onion"],extra:["cumin","olive oil"],steps:["Slowly fry onions until deep brown.","Cook lentils halfway.","Add rice, cumin and water; cook together.","Top with crispy onions."]},
+ {name:"Kuku Sabzi",native:"کوکو سبزی",cuisine:"Middle Eastern",region:"Persian",time:30,diff:"Easy",core:["egg","herbs"],extra:["onion","turmeric"],steps:["Chop a big bunch of herbs.","Mix with eggs and turmeric.","Cook covered on low until set.","Flip and finish."]},
+ {name:"Patatas Bravas",native:"",cuisine:"Mediterranean",region:"Spanish",time:35,diff:"Easy",core:["potato","tomato"],extra:["paprika","garlic","olive oil"],steps:["Roast or fry cubed potatoes until crisp.","Simmer tomato with paprika and garlic.","Pour sauce over potatoes."]},
+ {name:"Menemen",native:"Menemen",cuisine:"Mediterranean",region:"Turkish",time:15,diff:"Easy",core:["egg","tomato","pepper"],extra:["onion","butter"],steps:["Cook peppers in butter.","Add grated tomato, cook down.","Stir in eggs gently until soft."]},
+ {name:"Ratatouille",native:"",cuisine:"French",region:"Provençal",time:50,diff:"Medium",core:["eggplant","zucchini","tomato"],extra:["pepper","onion","garlic","olive oil"],steps:["Cook each vegetable separately in olive oil.","Combine with tomato and garlic.","Simmer gently 20 min."]},
+ {name:"Ham & Cheese Quiche",native:"",cuisine:"French",region:"Bistro",time:50,diff:"Medium",core:["egg","cheese","milk"],extra:["ham","flour","butter"],steps:["Make or use a pie crust.","Whisk eggs, milk, cheese.","Add ham, pour into crust.","Bake 35 min."]},
+ {name:"Mac & Cheese",native:"",cuisine:"American",region:"Comfort food",time:25,diff:"Easy",core:["pasta","cheese","milk"],extra:["butter","flour"],steps:["Boil pasta.","Make a roux with butter and flour, whisk in milk.","Melt in cheese.","Stir in pasta."]},
+ {name:"Shrimp & Grits",native:"",cuisine:"American",region:"Southern",time:30,diff:"Medium",core:["shrimp","grits"],extra:["butter","cheese","garlic"],steps:["Cook grits with butter and cheese.","Sauté shrimp with garlic.","Serve shrimp over grits."]},
+ {name:"Arroz con Pollo",native:"",cuisine:"Caribbean & Latin",region:"Cuban",time:50,diff:"Medium",core:["chicken","rice"],extra:["pepper","onion","tomato","cumin"],steps:["Brown chicken.","Cook pepper, onion, tomato.","Add rice, broth and chicken.","Cover and cook until rice is done."]},
+ {name:"Lomo Saltado",native:"",cuisine:"Caribbean & Latin",region:"Peruvian",time:25,diff:"Medium",core:["beef","potato","tomato"],extra:["onion","soy sauce","vinegar"],steps:["Fry potato wedges.","Sear beef strips very hot.","Add onion, tomato, soy and vinegar.","Toss with fries, serve with rice."]},
+ {name:"Misir Wot",native:"ምስር ወጥ",cuisine:"African",region:"Ethiopian",time:40,diff:"Easy",core:["lentils","onion"],extra:["berbere","garlic","tomato paste"],steps:["Cook onion slowly until soft.","Add garlic, berbere, tomato paste.","Add red lentils and water.","Simmer until thick."]},
+ {name:"Peanut Stew",native:"",cuisine:"African",region:"West African",time:40,diff:"Easy",core:["peanut butter","tomato"],extra:["chicken","onion","sweet potato","ginger"],steps:["Cook onion and ginger.","Add tomato and chicken or sweet potato.","Stir in peanut butter and water.","Simmer 25 min."]},
+ {name:"Phở Gà (quick)",native:"Phở gà",cuisine:"Vietnamese",region:"Northern",time:40,diff:"Medium",core:["chicken","rice noodles"],extra:["ginger","onion","star anise","fish sauce","herbs"],steps:["Char ginger and onion.","Simmer with chicken and star anise 30 min.","Shred chicken, season broth with fish sauce.","Pour over noodles, add herbs."]}
+];
+
+// ---------- State ----------
+const S = { ings:[], staples:new Set(["salt","pepper","cooking oil"]), cuisines:new Set(), region:"", listing:false, results:[], tab:"All" };
+const chosen = c => S.cuisines.size===0 || S.cuisines.has(c);
+let sample = null, canImages = false, imgLimits = null;
+const $ = id => document.getElementById(id);
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+let saved = store.get("pp_saved", []);
+S.ings = store.get("pp_ings", []);
+
+const norm = s => s.toLowerCase().trim().replace(/\s+/g," ");
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+// ---------- Ingredients ----------
+function addIngs(list){
+  for(const raw of list){
+    for(const part of String(raw).split(/,|\n| and /)){
+      const n = norm(part);
+      if(n && !S.ings.includes(n)) S.ings.push(n);
+    }
+  }
+  store.set("pp_ings", S.ings); renderChips();
+}
+function renderChips(){
+  $("chips").innerHTML = S.ings.length ? S.ings.map((n,i)=>`<span class="chip">${esc(n)}<button aria-label="Remove ${esc(n)}" data-i="${i}">×</button></span>`).join("")
+    + `<button class="ghost" id="clearAll" style="padding:5px 10px;font-size:13px">Clear all</button>` : "";
+  $("chips").querySelectorAll("button[data-i]").forEach(b=>b.onclick=()=>{S.ings.splice(+b.dataset.i,1);store.set("pp_ings",S.ings);renderChips();});
+  const c=$("clearAll"); if(c) c.onclick=()=>{S.ings=[];store.set("pp_ings",S.ings);renderChips();};
+}
+function renderStaples(){
+  $("staples").innerHTML = STAPLES.map(s=>`<button class="pick ${S.staples.has(s)?"on":""}" data-s="${s}">${s}</button>`).join("");
+  $("staples").querySelectorAll("button").forEach(b=>b.onclick=()=>{const s=b.dataset.s;S.staples.has(s)?S.staples.delete(s):S.staples.add(s);renderStaples();});
+}
+$("addForm").onsubmit = e => { e.preventDefault(); addIngs([$("ingInput").value]); $("ingInput").value=""; };
+
+// ---------- Cuisines ----------
+const INK={"All": "teal", "Chinese": "red", "Mexican": "green", "Italian": "blue", "Indian": "amber", "Japanese": "red", "Korean": "blue", "Thai": "violet", "Vietnamese": "green", "Mediterranean": "blue", "Middle Eastern": "amber", "French": "violet", "American": "red", "Caribbean & Latin": "teal", "African": "amber"};
+const TILT=[-2,1.5,-1,2,-1.5,1,-2.5,0.5];
+function dishCount(){ return BOOK.filter(r=>chosen(r.cuisine)).length + mine.filter(r=>chosen(r.cuisine)).length; }
+function renderCuisines(){
+  const none=S.cuisines.size===0;
+  $("cuisines").innerHTML = `<button class="stamp listall ${S.listing?"on":""}" id="listAll" aria-pressed="${S.listing}" aria-label="Show all dishes"><span class="em">☰</span>${S.listing?"Hide dishes":"Show all dishes"}<span class="cnt">${dishCount()}</span></button>`
+    + Object.entries(CUISINES).map(([k,v])=>{ const on = k==="All" ? none : S.cuisines.has(k);
+      return `<button class="stamp ${on?"on":""}" aria-pressed="${on}" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"All cultures":esc(k)}${on&&k!=="All"?'<span class="tick">✓</span>':""}</button>`; }).join("");
+  $("cuisines").querySelectorAll("button[data-c]").forEach(b=>b.onclick=()=>{
+    const c=b.dataset.c;
+    if(c==="All") S.cuisines.clear();
+    else if(S.cuisines.has(c)) S.cuisines.delete(c); else S.cuisines.add(c);
+    S.region="";
+    if(S.listing){ S.listing=false; S.results=[]; $("results").innerHTML=""; $("modeNote").textContent=""; }
+    renderCuisines();
+  });
+  $("listAll").onclick=()=>{ if(S.listing){ S.listing=false; S.results=[]; $("results").innerHTML=""; $("modeNote").textContent=""; renderCuisines(); } else listAll(); };
+  $("pickNote").textContent = none ? "All cultures: dishes from all over the world. Tap cultures to choose one or more." : `${S.cuisines.size} chosen: ${[...S.cuisines].join(", ")}. Tap again to remove.`;
+  const one = S.cuisines.size===1 ? [...S.cuisines][0] : null;
+  const regs = one ? CUISINES[one].regions : [];
+  $("regionBox").classList.toggle("hidden", !regs.length);
+  $("regions").innerHTML = ["Any",...regs].map(r=>`<button class="pick ${(S.region||"Any")===r?"on":""}" data-r="${esc(r)}">${esc(r)}</button>`).join("");
+  $("regions").querySelectorAll("button").forEach(b=>b.onclick=()=>{S.region=b.dataset.r==="Any"?"":b.dataset.r;renderCuisines();});
+}
+
+// ---------- Photo ----------
+function shrink(file){
+  return new Promise((res,rej)=>{
+    const img=new Image(); const url=URL.createObjectURL(file);
+    img.onload=()=>{ const max=1280, sc=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement("canvas"); c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc);
+      c.getContext("2d").drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url);
+      c.toBlob(b=>b?res(b):rej(new Error("Could not read image")),"image/jpeg",0.85); };
+    img.onerror=()=>rej(new Error("Could not read image")); img.src=url;
+  });
+}
+// Photo tray: snap or pick several photos, then read them all at once
+const MAX_TRAY = 8;
+let tray = [];
+function renderTray(){
+  const box=$("preview");
+  if(!tray.length){ box.innerHTML=""; $("trayBar").classList.add("hidden"); return; }
+  box.innerHTML = tray.map((t,i)=>`<div class="tray-item"><img alt="Photo ${i+1}" src="${t.url}"><button aria-label="Remove photo ${i+1}" data-i="${i}">×</button></div>`).join("")
+    + (tray.length<MAX_TRAY ? `<label class="tray-add" aria-label="Take another photo"><input type="file" accept="image/*" capture="environment" class="trayCam">＋<span>Add</span></label>` : "");
+  box.querySelectorAll("button[data-i]").forEach(b=>b.onclick=()=>{ URL.revokeObjectURL(tray[+b.dataset.i].url); tray.splice(+b.dataset.i,1); renderTray(); });
+  const tc=box.querySelector(".trayCam"); if(tc) tc.onchange=onPhotos;
+  $("trayBar").classList.remove("hidden");
+  $("readTray").textContent = `Find ingredients in ${tray.length} photo${tray.length>1?"s":""}`;
+}
+function onPhotos(e){
+  const files=[...e.target.files]; e.target.value="";
+  const room = MAX_TRAY - tray.length;
+  files.slice(0,room).forEach(f=>tray.push({file:f, url:URL.createObjectURL(f)}));
+  const st=$("photoStatus"); st.className="status";
+  st.textContent = files.length>room ? `Up to ${MAX_TRAY} photos at a time.` : "";
+  renderTray();
+}
+$("photoInput").onchange = $("cameraInput").onchange = onPhotos;
+$("clearTray").onclick = ()=>{ tray.forEach(t=>URL.revokeObjectURL(t.url)); tray=[]; renderTray(); $("photoStatus").textContent=""; };
+$("readTray").onclick = async ()=>{
+  if(!tray.length) return;
+  const st=$("photoStatus"); st.className="status";
+  const btn=$("readTray"); btn.disabled=true;
+  st.innerHTML='<span class="spinner"></span>Getting ready…';
+  await aiReady;
+  if(!sample){ st.className="status err"; st.textContent="Reading photos isn't switched on yet. Type your ingredients for now."; btn.disabled=false; return; }
+  const per = (imgLimits&&imgLimits.maxCount)||4;
+  const groups=[]; for(let i=0;i<tray.length;i+=per) groups.push(tray.slice(i,i+per));
+  const found=new Set(); const before=S.ings.length;
+  try{
+    for(let g=0; g<groups.length; g++){
+      st.innerHTML=`<span class="spinner"></span>Looking at your photos${groups.length>1?` (${g+1} of ${groups.length})`:""}… about 10–30 seconds`;
+      const blobs = await Promise.all(groups[g].map(t=>shrink(t.file).catch(()=>t.file)));
+      const out = await sample.json(
+`You are a kitchen assistant. These ${blobs.length} photo(s) show someone's fridge, pantry or groceries. List every food ingredient you can identify across all of them (produce, meat, dairy, packaged foods, sauces, spices). Use short common grocery names in lowercase English, singular where natural (e.g. "egg", "tomato", "soy sauce"). List each ingredient once. Skip non-food items. If unsure, leave it out.
+Return JSON only: {"ingredients":["..."]}`, {images:blobs, modelTier:"quick"});
+      ((out&&out.ingredients)||[]).forEach(x=>found.add(String(x)));
+    }
+    if(!found.size){ st.textContent="Couldn't spot ingredients. Try closer, brighter photos, or type them."; btn.disabled=false; return; }
+    addIngs([...found]);
+    const added=S.ings.length-before;
+    tray.forEach(t=>URL.revokeObjectURL(t.url)); tray=[]; renderTray();
+    st.textContent=`Found ${found.size} ingredient${found.size>1?"s":""}, ${added} new. Tap × on any that are wrong.`;
+  }catch(err){
+    st.className="status err";
+    st.textContent = (found.size? `Read some photos, then stopped. ` : "") + aiErrText(err,"those photos");
+    if(found.size) addIngs([...found]);
+  }finally{ btn.disabled=false; }
+};
+
+// ---------- Matching (offline book) ----------
+const SYN = {"eggs":"egg","tomatoes":"tomato","potatoes":"potato","noodles":"pasta","spaghetti":"pasta","penne":"pasta","chicken breast":"chicken","chicken thigh":"chicken","minced pork":"ground pork","pork mince":"ground pork","peanuts":"peanut","tortillas":"tortilla","cheddar":"cheese","mozzarella":"cheese","parmesan":"cheese","garbanzo":"chickpeas","chickpea":"chickpeas","lentil":"lentils","scallions":"scallion","green onion":"scallion","spring onion":"scallion","onions":"onion","beans":"beans","kidney beans":"beans","black bean":"black beans","cucumbers":"cucumber","bread slices":"bread","sausages":"sausage","thai basil":"basil"};
+function canon(s){ s=norm(s); return SYN[s]||s; }
+function has(have, item){
+  item=canon(item);
+  return have.some(h=>h===item || h.includes(item) || item.includes(h) || (item==="beans"&&h.includes("bean")));
+}
+function localSearch(){
+  const have=[...S.ings,...S.staples].map(canon);
+  const maxT=+$("time").value||999, diet=$("diet").value;
+  const meat=["chicken","ground pork","ham","sausage"];
+  return BOOK.filter(r=>chosen(r.cuisine))
+   .filter(r=>r.time<=maxT)
+   .filter(r=>!(diet==="Vegetarian"||diet==="Vegan") || !r.core.some(c=>meat.includes(c)))
+   .map(r=>{ const all=[...r.core,...r.extra];
+     const uses=all.filter(i=>has(have,i)), missing=all.filter(i=>!has(have,i));
+     const coreHit=r.core.filter(i=>has(have,i)).length/r.core.length;
+     return {...r, uses, missing, score:coreHit, why:`A classic ${r.cuisine} dish, ${r.region} style.`,
+       ingredients:all.map(i=>({item:i,amount:""}))}; })
+   .filter(r=>$("strict").checked ? (r.score===1 && r.missing.length<=2) : r.score>=0.5)
+   .sort((a,b)=>(b.score-a.score)||(a.missing.length-b.missing.length));
+}
+
+// ---------- List all dishes (no ingredients needed) ----------
+function listAll(quiet){
+  S.listing=true;
+  const have=[...S.ings,...S.staples].map(canon);
+  const book=BOOK.map(r=>{ const all=[...r.core,...r.extra];
+    return {...r, uses:all.filter(i=>has(have,i)), missing:all.filter(i=>!has(have,i)),
+      why:`A classic ${r.cuisine} dish, ${r.region} style.`, ingredients:all.map(i=>({item:i,amount:""}))}; });
+  const mineAll=mine.filter(r=>chosen(r.cuisine)).map(withUse);
+  const order=Object.keys(CUISINES);
+  S.results=mineAll.concat(book.filter(r=>chosen(r.cuisine))).sort((a,b)=>(order.indexOf(a.cuisine)-order.indexOf(b.cuisine))||a.name.localeCompare(b.name));
+  S.tab="All";
+  $("modeNote").textContent=`${S.results.length} dishes${mineAll.length?` (${mineAll.length} of yours)`:""}${S.cuisines.size?" from your chosen cultures":""}. Tap Hide dishes to close.`;
+  renderCuisines(); renderResults();
+  if(!quiet) $("results").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+// ---------- AI chef ----------
+async function aiSearch(exclude=[]){
+  const picks=[...S.cuisines], region=S.region, strict=$("strict").checked;
+  const t=$("time").value, diet=$("diet").value, serves=$("serves").value;
+  const scope = picks.length===0
+    ? "Give 6 dishes, each from a DIFFERENT food culture (e.g. Chinese, Mexican, Italian, Indian, Japanese, Korean, Thai, Vietnamese, Middle Eastern, West African, Caribbean...). Mix mains, soups, salads, snacks and sides."
+    : picks.length>1
+    ? `Give 6 dishes, only from these food cultures: ${picks.join(", ")}. Spread them across all of them. Mix mains, soups, sides and snacks.`
+    : `Give 6 dishes, all from ${picks[0]} cuisine${region?`, specifically the ${region} regional style`:", spread across different regional styles of that cuisine so the user learns how the regions differ"}. Mix mains, soups, sides, snacks and street food.`;
+  const avoid = exclude.length ? `\n- Do NOT repeat any of these dishes already shown: ${exclude.join("; ")}. Give different ones, including lesser-known home-style and regional dishes.` : "";
+  const prompt =
+`You are a world-cuisine chef helping a home cook use what they already have.
+Ingredients on hand: ${S.ings.join(", ")}.
+Pantry basics on hand: ${[...S.staples].join(", ")||"none"}.
+${scope}
+Rules:
+- Each dish must use the main ingredients on hand as its core.
+- ${strict?"Use ONLY the ingredients and basics listed. Water is free. No missing items.":"At most 2 missing items per dish, and only cheap common ones."}
+- ${t?`Total time ${t} minutes or less.`:"Any cooking time."}
+- ${diet?`Must be ${diet}.`:"No dietary limit."}
+- Amounts for ${serves} servings, US measures.
+- Real dishes people actually cook in that culture; give the native-script name when there is one.
+- "region" = the regional style or country within the cuisine. "why" = one sentence about where it's from and why it fits these ingredients.
+- Steps: 4 to 6 short, clear steps. Keep "why" to one short sentence.${avoid}
+Return JSON only, no prose:
+{"dishes":[{"name":"","native":"","cuisine":"","region":"","why":"","time":0,"diff":"Easy|Medium|Hard","uses":["ingredients on hand used"],"missing":["items to buy"],"ingredients":[{"item":"","amount":""}],"steps":[""]}]}`;
+  const out = await sample.json(prompt, {modelTier:"default"});
+  const list = (out && out.dishes) || [];
+  return list.map(d=>({...d, time:+d.time||0, uses:d.uses||[], missing:strict?[]:(d.missing||[]), ingredients:d.ingredients||[], steps:d.steps||[]}));
+}
+
+// ---------- Premium (Android app only: Google Play subscription) ----------
+const IS_ANDROID = !!window.PantryNative;
+let BILL = {};
+try{ if(IS_ANDROID) BILL = JSON.parse(window.PantryNative.billingState()||"{}"); }catch(e){}
+function isPremium(){ return !IS_ANDROID || !!BILL.premium; }
+window.__pantryBilling = st => { BILL = st||{}; renderPremiumBar(); if($("paywall")) openPaywall(); };
+function renderPremiumBar(){
+  const bar=$("premiumBar"); if(!bar) return;
+  if(!IS_ANDROID){ bar.classList.add("hidden"); return; }
+  bar.classList.remove("hidden");
+  bar.innerHTML = BILL.premium
+    ? `<span>✨ Premium is on</span><button class="ghost" id="managePrem">Manage</button>`
+    : `<span>✨ AI dish ideas and photo scanning</span><button class="primary" id="openPrem">${BILL.trialDays?"Try free":"Get Premium"}</button>`;
+  const m=$("managePrem"); if(m) m.onclick=()=>{ try{ window.PantryNative.manageSubscription(); }catch(e){} };
+  const o=$("openPrem"); if(o) o.onclick=()=>openPaywall();
+}
+function openPaywall(why){
+  const days=BILL.trialDays||14, price=BILL.price||"$4.99";
+  if(BILL.premium){ if($("paywall")) closeSheet(); return; }
+  $("sheet").dataset.key="";
+  $("sheet").innerHTML = `<div id="paywall">
+    <button class="ghost close" id="closeSheet">Not now</button>
+    <h2>Pantry Passport Premium</h2>
+    ${why?`<p class="hint" style="font-size:15px">${esc(why)}</p>`:""}
+    <ul class="perks">
+      <li><b>AI dish ideas</b> from what's in your kitchen, from any food culture</li>
+      <li><b>More dishes</b>: keep getting new ideas you haven't seen</li>
+      <li><b>Snap your fridge</b>: take photos and the app finds your ingredients</li>
+      <li><b>Scan recipes</b> from cards, cookbooks or screenshots, in any language</li>
+    </ul>
+    <div class="havebox" style="text-align:center"><b style="font-family:Outfit,sans-serif;font-size:20px">${BILL.trialDays?`${days} days free`:price+" / month"}</b>
+      <div class="hint">${BILL.trialDays?`Then ${price} a month. Cancel anytime in Google Play before the trial ends and you won't be charged.`:`Renews monthly. Cancel anytime in Google Play.`}</div></div>
+    <button class="primary" id="buyPrem" style="width:100%;padding:15px;margin-top:14px;font-size:17px">${BILL.trialDays?`Start ${days}-day free trial`:`Subscribe for ${price}/month`}</button>
+    <button class="ghost" id="restorePrem" style="width:100%;margin-top:10px">I already subscribed</button>
+    <div class="status" id="payStatus">${BILL.pending?"Your payment is pending in Google Play.":esc(BILL.message||"")}</div>
+    <p class="hint">Free forever: the 64-dish recipe book, Show all dishes, your own typed recipes and shopping lists.</p>
+  </div>`;
+  $("overlay").classList.add("open");
+  $("closeSheet").onclick=closeSheet;
+  $("buyPrem").onclick=()=>{ $("payStatus").textContent = BILL.ready ? "Opening Google Play…" : "Connecting to Google Play…"; try{ window.PantryNative.billingBuy(); }catch(e){ $("payStatus").textContent="Google Play isn't available here."; } };
+  $("restorePrem").onclick=()=>{ $("payStatus").textContent="Checking with Google Play…"; try{ window.PantryNative.billingRefresh(); }catch(e){} setTimeout(()=>{ if(!BILL.premium && $("payStatus")) $("payStatus").textContent="No active subscription found for this Google account."; },4000); };
+}
+function needPremium(why){ if(isPremium()) return false; openPaywall(why); return true; }
+// Photo buttons are Premium on Android: stop the picker and show the offer instead.
+document.addEventListener("click", e=>{
+  if(isPremium()) return;
+  const inp = e.target.closest && e.target.closest("label")?.querySelector('input[type=file]');
+  const t = e.target.matches && e.target.matches('input[type=file]') ? e.target : inp;
+  if(!t || t.id==="fPhoto") return;
+  e.preventDefault(); e.stopPropagation();
+  openPaywall(t.id==="scanCamera"||t.id==="scanInput" ? "Scanning recipes from photos is part of Premium." : "Finding ingredients in your photos is part of Premium.");
+}, true);
+
+$("goBtn").onclick = async () => {
+  const st=$("goStatus"); st.className="status";
+  if($("ingInput").value.trim()){ addIngs([$("ingInput").value]); $("ingInput").value=""; }
+  if(!S.ings.length){ st.className="status err"; st.textContent="Add at least one ingredient first."; return; }
+  $("goBtn").disabled=true;
+  try{
+    if(sample && isPremium()){
+      st.innerHTML='<span class="spinner"></span>The chef is thinking across cuisines… (about 30–60 seconds)';
+      try{ S.results = mineMatches().concat(await aiSearch()); $("modeNote").textContent=""; }
+      catch(err){
+        if(err && err.code==="rate_limited"){ st.className="status err"; st.textContent="Too many requests — wait a minute, then try again."; return; }
+        S.results = mineMatches().concat(localSearch());
+        $("modeNote").textContent="AI chef unavailable right now — showing matches from the built-in recipe book.";
+      }
+    }else{
+      S.results = mineMatches().concat(localSearch());
+      $("modeNote").innerHTML = IS_ANDROID
+        ? `Matches from the built-in recipe book (${BOOK.length} dishes) and your own recipes. <a href="#" id="noteAI">✨ Get AI dish ideas</a>`
+        : `Matches from the built-in recipe book (${BOOK.length} dishes) and your own recipes.`;
+      const na=$("noteAI"); if(na) na.onclick=ev=>{ ev.preventDefault(); openPaywall("AI dish ideas are part of Premium."); };
+    }
+    S.tab="All"; S.listing=false; renderCuisines(); st.textContent=""; renderResults();
+    $("results").scrollIntoView({behavior:"smooth",block:"start"});
+  } finally { $("goBtn").disabled=false; }
+};
+
+// ---------- Results ----------
+function dishCard(d, idx, src){
+  const total=(d.uses.length+d.missing.length)||1, pct=Math.round(d.uses.length/total*100);
+  const flag=(CUISINES[d.cuisine]||{}).flag||"🍽️";
+  return `<div class="card dish" data-src="${src}" data-i="${idx}">
+    <div class="dish-top"><div><h3>${esc(d.name)}${d.mine?'<span class="mine-badge">Mine</span>':""}</h3>${d.native?`<div class="native">${esc(d.native)}</div>`:""}</div>
+    ${picFor(d)?`<img class="thumb" alt="" src="${picFor(d)}">`:`<span class="flag" style="--ink-c:var(--${INK[d.cuisine]||"teal"})">${flag} ${esc(d.cuisine)}</span>`}</div>
+    <div class="meta">${d.region?`<span>📍 ${esc(d.region)}</span>`:""}${d.time?`<span>⏱ ${d.time} min</span>`:""}${d.diff?`<span>👩‍🍳 ${esc(d.diff)}</span>`:""}</div>
+    ${d.why?`<div class="why">${esc(d.why)}</div>`:""}
+    <div>${d.uses.slice(0,8).map(u=>`<span class="tag have">✓ ${esc(u)}</span>`).join("")}${d.missing.map(m=>`<span class="tag need">+ ${esc(m)}</span>`).join("")}</div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+  </div>`;
+}
+function renderResults(){
+  const r=S.results, box=$("results");
+  if(!r.length){ box.innerHTML=`<div class="empty">No dishes matched. Try adding a few more ingredients, turning off "Only use what I have", or picking "All cultures".</div>`; return; }
+  const cuisines=[...new Set(r.map(d=>d.cuisine))];
+  const shown=S.tab==="All"?r:r.filter(d=>d.cuisine===S.tab);
+  box.innerHTML = `<h2>${r.length} dishes from ${cuisines.length} food culture${cuisines.length>1?"s":""}</h2>
+   ${cuisines.length>1?`<div class="tabs">${["All",...cuisines].map(c=>`<button class="pick ${S.tab===c?"on":""}" data-t="${esc(c)}">${c==="All"?"All":((CUISINES[c]||{}).flag||"🍽️")+" "+esc(c)} (${c==="All"?r.length:r.filter(d=>d.cuisine===c).length})</button>`).join("")}</div>`:""}
+   ${shown.map(d=>dishCard(d,r.indexOf(d),"r")).join("")}
+   ${sample?`<button class="primary" id="moreBtn" style="width:100%;padding:14px">More dishes</button><div class="status" id="moreStatus"></div>`:""}`;
+  const mb=$("moreBtn"); if(mb) mb.onclick=loadMore;
+  box.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{S.tab=b.dataset.t;renderResults();});
+  box.querySelectorAll(".dish").forEach(c=>c.onclick=()=>openDish(S.results[+c.dataset.i]));
+}
+
+async function loadMore(){
+  if(needPremium("More dishes is part of Premium.")) return;
+  const mb=$("moreBtn"), st=$("moreStatus"); mb.disabled=true;
+  st.className="status"; st.innerHTML='<span class="spinner"></span>Cooking up more ideas…';
+  try{
+    const seen=new Set(S.results.map(d=>norm(d.name)));
+    const more=(await aiSearch(S.results.map(d=>d.name))).filter(d=>!seen.has(norm(d.name)));
+    if(!more.length){ st.textContent="No new dishes this time. Try adding ingredients or another cuisine."; mb.disabled=false; return; }
+    S.results=S.results.concat(more); renderResults();
+  }catch(err){
+    st.className="status err";
+    st.textContent = err&&err.code==="rate_limited" ? "Too many requests — wait a minute, then tap again." : "Couldn't get more right now. Try again.";
+    mb.disabled=false;
+  }
+}
+
+// ---------- Dish pictures: only your own photos ----------
+function picFor(d){ return d && d.mine && d.pic ? d.pic : ""; }
+try{ localStorage.removeItem("pp_pics"); }catch(e){}
+
+// ---------- Recipe sheet ----------
+function isSaved(d){ return saved.some(s=>s.name===d.name&&s.cuisine===d.cuisine); }
+function haveNow(){ return [...S.ings,...S.staples].map(canon); }
+function toggleHave(item){
+  const have=haveNow();
+  if(has(have,item)){
+    const c=canon(item);
+    S.ings=S.ings.filter(x=>!has([canon(x)],c));
+    [...S.staples].forEach(x=>{ if(has([canon(x)],c)) S.staples.delete(x); });
+  } else { S.ings.push(norm(item)); }
+  store.set("pp_ings",S.ings); renderChips(); renderStaples();
+}
+function openDish(d, keepScroll){
+  const items=(d.ingredients&&d.ingredients.length?d.ingredients:[...(d.uses||[]),...(d.missing||[])].map(i=>({item:i,amount:""}))).filter(i=>i&&i.item);
+  const have=haveNow();
+  const rows=items.map(i=>({...i, ok:has(have,i.item)}));
+  const toBuy=rows.filter(r=>!r.ok), gotN=rows.length-toBuy.length;
+  const pct=rows.length?Math.round(gotN/rows.length*100):0;
+  const noneEntered=S.ings.length===0;
+  const flag=(CUISINES[d.cuisine]||{}).flag||"🍽️";
+  const top=keepScroll?$("sheet").scrollTop:0;
+  $("sheet").innerHTML = `<button class="ghost close" id="closeSheet">Close</button>
+    <h2>${esc(d.name)}</h2>${d.native?`<div class="native">${esc(d.native)}</div>`:""}
+    ${d.mine&&d.pic?`<div class="pic"><img alt="${esc(d.name)}" src="${d.pic}"></div>`:""}
+    ${d.mine&&d.notes?`<p><i>${esc(d.notes)}</i></p>`:""}
+    <div class="meta"><span>${flag} ${esc(d.cuisine)}${d.region?", "+esc(d.region):""}</span>${d.time?`<span>⏱ ${d.time} min</span>`:""}${d.diff?`<span>👩‍🍳 ${esc(d.diff)}</span>`:""}<span>🍽 serves ${esc($("serves").value)}</span></div>
+    ${d.why&&!d.mine?`<p>${esc(d.why)}</p>`:""}
+    <div class="havebox">
+      <div class="havetop"><b>${toBuy.length? `You have ${gotN} of ${rows.length}` : `You have everything`}</b><span>${toBuy.length? `${toBuy.length} to buy` : "Ready to cook"}</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      ${noneEntered?`<div class="hint" style="margin-top:8px">Checked against your pantry basics only. Add what's in your kitchen on the Cook tab, or tap an ingredient below to mark it as "I have it".</div>`:`<div class="hint" style="margin-top:8px">Checked against your ingredients on the Cook tab. Tap any ingredient to change it.</div>`}
+    </div>
+    <div class="label">Ingredients</div>
+    <ul class="ing ing-check">${rows.map((r,i)=>`<li class="${r.ok?"ok":"need"}" data-i="${i}" role="button" tabindex="0" aria-label="${esc(r.item)}: ${r.ok?"you have it":"need to buy"}"><span class="mark">${r.ok?"✓":"+"}</span><span class="nm">${esc(r.item)}</span><span class="amt">${esc(r.amount||"")}</span></li>`).join("")}</ul>
+    ${toBuy.length?`<div class="buybox"><div class="label" style="margin-top:0">To buy (${toBuy.length})</div>
+      <ul>${toBuy.map(r=>`<li>${esc(r.item)}${r.amount?` <span>${esc(r.amount)}</span>`:""}</li>`).join("")}</ul>
+      <button class="primary" id="copyList" style="width:100%">Copy shopping list</button></div>`:""}
+    <div class="label">Steps</div>
+    <ol>${d.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
+    <div class="row" style="margin-top:16px">
+      ${d.mine?`<button class="primary" id="editMine">✎ Edit</button><button class="ghost" id="delMine">Delete</button>`
+        :`<button class="primary" id="saveBtn">${isSaved(d)?"★ Saved":"☆ Save recipe"}</button><button id="copyMine">＋ Copy to My recipes</button>`}
+    </div><div class="status" id="sheetStatus"></div>`;
+  $("overlay").classList.add("open");
+  $("sheet").scrollTop=top;
+  $("closeSheet").onclick=closeSheet;
+  $("sheet").querySelectorAll(".ing-check li").forEach(li=>{ const go=()=>{ toggleHave(rows[+li.dataset.i].item); openDish(d,true); };
+    li.onclick=go; li.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } }; });
+  if(d.mine){
+    $("editMine").onclick=()=>openForm(mine.find(m=>m.id===d.id)||d);
+    $("delMine").onclick=async()=>{ const b=$("delMine");
+      if(b.dataset.sure!=="1"){ b.dataset.sure="1"; b.textContent="Tap again to delete"; return; }
+      try{ await delMine(d.id); closeSheet(); setMineStatus("Recipe deleted."); }catch(e){ $("sheetStatus").textContent="Couldn't delete. Try again."; } };
+  } else {
+    $("copyMine").onclick=()=>openForm({...d, pic: undefined, mine:false, id:undefined});
+  }
+  if($("saveBtn")) $("saveBtn").onclick=()=>{ if(isSaved(d)) saved=saved.filter(s=>!(s.name===d.name&&s.cuisine===d.cuisine)); else saved.unshift({...d});
+    store.set("pp_saved",saved); $("saveBtn").textContent=isSaved(d)?"★ Saved":"☆ Save recipe"; renderSaved(); };
+  const cp=$("copyList"); if(cp) cp.onclick=async()=>{ const txt=`Shopping list for ${d.name}:\n`+toBuy.map(r=>"- "+r.item+(r.amount?` (${r.amount})`:"")).join("\n");
+    try{ await navigator.clipboard.writeText(txt); $("sheetStatus").textContent="Shopping list copied. Paste it into Notes or a text."; }catch(e){ $("sheetStatus").textContent="To buy: "+toBuy.map(r=>r.item).join(", "); } };
+}
+function closeSheet(){ $("overlay").classList.remove("open"); }
+$("overlay").onclick=e=>{ if(e.target.id==="overlay") closeSheet(); };
+
+// ---------- Saved & nav ----------
+function renderSaved(){
+  $("savedCount").textContent = saved.length?`(${saved.length})`:"";
+  $("savedList").innerHTML = saved.length ? saved.map((d,i)=>dishCard(d,i,"s")).join("") : `<div class="empty">No saved recipes yet. Open a dish and tap ☆ Save.</div>`;
+  $("savedList").querySelectorAll(".dish").forEach(c=>c.onclick=()=>openDish(saved[+c.dataset.i]));
+}
+function showView(v){
+  document.querySelectorAll(".nav .pick").forEach(x=>x.classList.toggle("on",x.dataset.view===v));
+  ["cook","mine","saved"].forEach(n=>$("view-"+n).classList.toggle("hidden",n!==v));
+}
+document.querySelectorAll(".nav .pick").forEach(b=>b.onclick=()=>showView(b.dataset.view));
+
+document.querySelectorAll(".helpbtn").forEach(b=>b.onclick=()=>{
+  const card=$(b.getAttribute("aria-controls")); const open=card.classList.toggle("hidden")===false;
+  b.setAttribute("aria-expanded",open);
+});
+
+// ---------- My recipes (stored in your account when possible) ----------
+let mine = [], mineCol = null;
+const mineLocal = { load(){ mine = store.get("pp_mine", []); }, save(){ store.set("pp_mine", mine); } };
+function setMineStatus(t, err){ const s=$("mineStatus"); s.className="status"+(err?" err":""); s.textContent=t||""; }
+async function putMine(r){
+  const i=mine.findIndex(m=>m.id===r.id); if(i>-1) mine[i]=r; else mine.unshift(r);
+  if(mineCol){ await mineCol.doc(r.id).set(JSON.parse(JSON.stringify(r))); }
+  else mineLocal.save();
+  renderMine();
+}
+async function delMine(id){
+  mine=mine.filter(m=>m.id!==id);
+  if(mineCol){ await mineCol.doc(id).delete(); } else mineLocal.save();
+  renderMine();
+}
+function renderMine(){
+  $("mineCount").textContent = mine.length?`(${mine.length})`:"";
+  const list=[...mine].sort((a,b)=>(b.updated||0)-(a.updated||0));
+  $("mineList").innerHTML = list.length ? list.map((d,i)=>dishCard(withUse(d),i,"m")).join("")
+    : `<div class="empty">No recipes of your own yet. Tap ＋ Type a recipe — family dishes, favorites, anything. They'll show up when you search with matching ingredients.</div>`;
+  $("mineList").querySelectorAll(".dish").forEach(c=>c.onclick=()=>openDish(withUse(list[+c.dataset.i])));
+  if($("cuisines").innerHTML) renderCuisines();
+}
+function withUse(r){
+  const have=[...S.ings,...S.staples].map(canon);
+  const items=(r.ingredients||[]).map(i=>i.item).filter(Boolean);
+  const uses=items.filter(i=>has(have,i)), missing=items.filter(i=>!has(have,i));
+  return {...r, mine:true, uses, missing, score: items.length? uses.length/items.length : 0};
+}
+function mineMatches(){
+  if(!S.ings.length) return [];
+  const maxT=+$("time").value||999, strict=$("strict").checked;
+  return mine.filter(r=>chosen(r.cuisine))
+    .filter(r=>!r.time || r.time<=maxT).map(withUse)
+    .filter(r=>strict ? r.missing.length===0 : r.score>=0.5)
+    .sort((a,b)=>b.score-a.score);
+}
+function parseIng(line){
+  line=line.trim().replace(/^[-•*]\s*/,""); if(!line) return null;
+  let m=line.match(/^(.+?)\s+[-–:]\s+(.+)$/); if(m) return {item:m[1].trim(),amount:m[2].trim()};
+  m=line.match(/^([\d½¼¾⅓⅔\/.,\s-]+(?:cups?|c\.|tbsp|tablespoons?|tsp|teaspoons?|g|grams?|kg|oz|ounces?|lbs?|pounds?|ml|l|liters?|cloves?|pieces?|slices?|cans?|bunch(?:es)?|pinch(?:es)?|handfuls?)?\.?)\s+(?:of\s+)?(.+)$/i);
+  if(m && /\d|½|¼|¾|⅓|⅔/.test(m[1])) return {item:m[2].trim(),amount:m[1].trim()};
+  return {item:line,amount:""};
+}
+function openForm(base){
+  const r = base || {};
+  const isEdit = !!(base && base.mine && base.id);
+  const opts = Object.keys(CUISINES).filter(k=>k!=="All").concat(["Other"]);
+  $("sheet").dataset.key="";
+  $("sheet").innerHTML = `<button class="ghost close" id="closeSheet">Cancel</button>
+   <h2>${isEdit?"Edit recipe":"Add a recipe"}</h2>
+   <form class="form" id="recipeForm">
+    <label class="f">Dish name *</label><input type="text" id="fName" required value="${esc(r.name||"")}" placeholder="e.g. Grandma's chicken soup">
+    <label class="f">Name in its own language (optional)</label><input type="text" id="fNative" value="${esc(r.native||"")}" placeholder="e.g. 红烧肉">
+    <div class="two">
+      <div><label class="f">Food culture</label><select id="fCuisine">${opts.map(o=>`<option ${o===(r.cuisine||"Other")?"selected":""}>${esc(o)}</option>`).join("")}</select></div>
+      <div><label class="f">Region / style</label><input type="text" id="fRegion" value="${esc(r.region||"")}" placeholder="e.g. Sichuan"></div>
+    </div>
+    <div class="two">
+      <div><label class="f">Total time (min)</label><input type="number" id="fTime" min="0" value="${esc(r.time||"")}"></div>
+      <div><label class="f">Difficulty</label><select id="fDiff">${["Easy","Medium","Hard"].map(o=>`<option ${o===(r.diff||"Easy")?"selected":""}>${o}</option>`).join("")}</select></div>
+    </div>
+    <label class="f">Ingredients * (one per line)</label>
+    <textarea id="fIngs" placeholder="2 cups rice&#10;3 eggs&#10;soy sauce - 2 tbsp&#10;scallion">${esc((r.ingredients||[]).map(i=>i.amount?`${i.item} - ${i.amount}`:i.item).join("\n"))}</textarea>
+    <div class="hint">Write "2 cups rice" or "rice - 2 cups". Amount is optional.</div>
+    <label class="f">Steps * (one per line)</label>
+    <textarea id="fSteps" placeholder="Cook the rice.&#10;Beat the eggs…">${esc((r.steps||[]).join("\n"))}</textarea>
+    <label class="f">Notes (optional)</label><input type="text" id="fNotes" value="${esc(r.notes||"")}" placeholder="e.g. Mom's version, add more ginger">
+    <label class="f">Photo of the dish (optional)</label>
+    <label class="photo-btn" style="margin-top:0"><input type="file" id="fPhoto" accept="image/*">📷 ${r.pic&&isEdit?"Change photo":"Add photo"}</label>
+    <div class="preview" id="fPrev">${r.pic&&isEdit?`<img alt="" src="${r.pic}">`:""}</div>
+    <div class="row" style="margin-top:16px"><button class="primary" type="submit" id="fSave">Save recipe</button></div>
+    <div class="status" id="fStatus"></div>
+   </form>`;
+  $("overlay").classList.add("open");
+  $("closeSheet").onclick=closeSheet;
+  let photo = isEdit ? (r.pic||"") : "";
+  $("fPhoto").onchange=async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    try{ const b=await shrinkTo(f,700,0.78); photo=await new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(b);});
+      $("fPrev").innerHTML=`<img alt="" src="${photo}">`; }catch(err){ $("fStatus").textContent="Couldn't read that photo."; }
+  };
+  $("recipeForm").onsubmit=async e=>{
+    e.preventDefault();
+    const ings=$("fIngs").value.split("\n").map(parseIng).filter(Boolean);
+    const steps=$("fSteps").value.split("\n").map(s=>s.trim().replace(/^\d+[.)]\s*/,"")).filter(Boolean);
+    const st=$("fStatus"); st.className="status err";
+    if(!$("fName").value.trim()){ st.textContent="Add a dish name."; return; }
+    if(!ings.length){ st.textContent="Add at least one ingredient."; return; }
+    if(!steps.length){ st.textContent="Add at least one step."; return; }
+    const rec={ id: isEdit? r.id : "r_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+      mine:true, name:$("fName").value.trim(), native:$("fNative").value.trim(), cuisine:$("fCuisine").value,
+      region:$("fRegion").value.trim(), time:+$("fTime").value||0, diff:$("fDiff").value,
+      ingredients:ings, steps, notes:$("fNotes").value.trim(), why:$("fNotes").value.trim(),
+      pic: photo || undefined, created: isEdit? (r.created||Date.now()) : Date.now(), updated: Date.now() };
+    if(!rec.pic) delete rec.pic;
+    $("fSave").disabled=true; st.className="status"; st.textContent="Saving…";
+    try{ await putMine(rec); closeSheet(); showView("mine"); setMineStatus(isEdit?"Recipe updated.":"Recipe added."); }
+    catch(err){ $("fSave").disabled=false; st.className="status err";
+      st.textContent = err&&err.code==="quota_exceeded" ? "Storage is full — delete a recipe or use a smaller photo." : "Couldn't save. Try again."; }
+  };
+}
+function shrinkTo(file,max,q){
+  return new Promise((res,rej)=>{ const img=new Image(), url=URL.createObjectURL(file);
+    img.onload=()=>{ const sc=Math.min(1,max/Math.max(img.width,img.height)), c=document.createElement("canvas");
+      c.width=Math.round(img.width*sc); c.height=Math.round(img.height*sc); c.getContext("2d").drawImage(img,0,0,c.width,c.height);
+      URL.revokeObjectURL(url); c.toBlob(b=>b?res(b):rej(new Error("x")),"image/jpeg",q); };
+    img.onerror=()=>rej(new Error("x")); img.src=url; });
+}
+$("newRecipe").onclick=()=>openForm(null);
+function aiErrText(err, what){
+  const c = err && err.code;
+  return c==="rate_limited" ? "Too many requests or usage limit reached — wait a minute and try again." :
+    c==="not_granted" ? "Claude wasn't allowed for this app. Reopen the app and tap Allow when it asks." :
+    c==="images_unavailable" ? "This view can't send photos to Claude. Try opening the app in the Claude app or at claude.ai." :
+    c==="image_rejected" ? "That photo couldn't be used (wrong type or too big). Try a screenshot or a different photo." :
+    c==="session_expired" ? "Your Claude sign-in expired. Sign in again and retry." :
+    c==="invalid_json" || c==="empty_completion" ? `Claude couldn't turn ${what} into a recipe. Try a clearer photo.` :
+    c==="refused" ? "Claude declined to read this photo. Try a different one." :
+    c==="sampling_disabled" ? "Claude isn't available for this account." :
+    `Something went wrong (${c||"unknown"}). Try again.`;
+}
+let scanCtl=null;
+function scanSheet(msg, err){
+  $("sheet").dataset.key="";
+  $("sheet").innerHTML = `<h2>Scan a recipe</h2>
+    <div class="pic" style="aspect-ratio:auto;padding:28px 16px;flex-direction:column;gap:10px;text-align:center" id="scanBox">${msg}</div>
+    <div class="row" style="margin-top:14px"><button class="${err?"primary":"ghost"}" id="scanClose">${err?"OK":"Cancel"}</button></div>`;
+  $("overlay").classList.add("open");
+  $("scanClose").onclick=()=>{ if(scanCtl) scanCtl.abort(); closeSheet(); };
+}
+async function toSendable(f){
+  try{ return await shrinkTo(f,1800,0.85); }
+  catch(e){ return f; }   // let Claude's side downsize it
+}
+$("scanCamera").onchange = $("scanInput").onchange = async e=>{
+  let files=[...e.target.files]; e.target.value="";
+  if(!files.length) return;
+  scanSheet('<span><span class="spinner"></span>Getting ready…</span>');
+  await aiReady;
+  if(!sample){ scanSheet("Reading recipe photos isn't switched on yet. Use ＋ Type a recipe for now.", true); return; }
+  const max = (imgLimits && imgLimits.maxCount) || 4;
+  const dropped = files.length > max; files = files.slice(0, max);
+  const t0=Date.now();
+  const tick=()=>{ const b=$("scanBox"); if(b && scanCtl) b.innerHTML=`<span><span class="spinner"></span>Reading your recipe… ${Math.round((Date.now()-t0)/1000)}s</span><span style="font-size:12px">This usually takes 20–60 seconds.${dropped?` Using the first ${max} photos.`:""}</span>`; };
+  scanCtl = new AbortController(); const ctl=scanCtl;
+  scanSheet(""); tick(); const iv=setInterval(tick,1000);
+  try{
+    const blobs=await Promise.all(files.map(toSendable));
+    const cuisines=Object.keys(CUISINES).filter(k=>k!=="All").concat(["Other"]);
+    const out=await sample.json(
+`These photo(s) show ONE recipe (a recipe card, cookbook page, handwritten note or screenshot; several photos are pages of the same recipe, in order). Read it carefully, including handwriting, and turn it into structured data.
+- Copy the ingredient amounts and steps as written; fix only obvious spelling. Keep the original-language title in "native" if the title is not in English, and give an English "name".
+- If the text is not in English, translate ingredients and steps to English.
+- "cuisine" must be one of: ${cuisines.join(", ")}. Pick the best fit, or "Other".
+- "region": regional style if clear, else "".
+- "time": total minutes if written or easy to tell, else 0. "diff": Easy, Medium or Hard.
+- "notes": servings, oven temperature or the author's notes, in one short line; else "".
+- If no recipe can be read, return {"error":"short reason"}.
+Return JSON only:
+{"name":"","native":"","cuisine":"","region":"","time":0,"diff":"Easy","ingredients":[{"item":"","amount":""}],"steps":[""],"notes":""}`,
+      {images:blobs, modelTier:"default", signal:ctl.signal, cache:false});
+    clearInterval(iv); scanCtl=null;
+    if(!out || out.error || !out.name || !(out.ingredients||[]).length){
+      scanSheet(`Couldn't find a recipe in that photo${out&&out.error?` (${esc(out.error)})`:""}. Try a closer, brighter, straight-on shot.`, true); return; }
+    openForm({ name:String(out.name), native:out.native||"", cuisine: cuisines.includes(out.cuisine)?out.cuisine:"Other",
+      region:out.region||"", time:+out.time||"", diff:["Easy","Medium","Hard"].includes(out.diff)?out.diff:"Easy",
+      ingredients:(out.ingredients||[]).filter(i=>i&&i.item).map(i=>({item:String(i.item),amount:String(i.amount||"")})),
+      steps:(out.steps||[]).map(String).filter(Boolean), notes:out.notes||"" });
+    const fs=$("fStatus"); if(fs){ fs.className="status"; fs.textContent="Filled in from your photo — please check, then tap Save recipe."; }
+  }catch(err){
+    clearInterval(iv); scanCtl=null;
+    if(err && err.code==="cancelled") return;
+    scanSheet(esc(aiErrText(err,"that photo")), true);
+  }
+};
+async function initMine(){
+  mineLocal.load(); renderMine();
+  try{
+    const [db,user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    const uid = db && user ? await user.id() : null;
+    if(!db || !uid){ setMineStatus("Your recipes are saved on this device only."); return; }
+    const col = db.collection("data/users/"+uid);
+    let first=true; const timer=setTimeout(()=>{ if(first) setMineStatus("Still loading your recipes…"); },10000);
+    col.onSnapshot(snap=>{
+      const fromDb = snap.docs.filter(d=>d.id.startsWith("r_")).map(d=>({...d.data()}));
+      if(first && !snap.metadata.fromCache){
+        first=false; clearTimeout(timer); setMineStatus("");
+        // move any recipes saved on this device into the account, once
+        const local=store.get("pp_mine",[]).filter(l=>!fromDb.some(x=>x.id===l.id));
+        mineCol=col;
+        if(local.length){ (async()=>{ for(const l of local){ try{ await col.doc(l.id).set(l); }catch(e){} } store.set("pp_mine",[]); })(); }
+        mine = fromDb.concat(local);
+      } else if(!first){ mine = fromDb; } else { return; }
+      renderMine();
+    }, err=>{ clearTimeout(timer); mineCol=null; setMineStatus("Couldn't reach your account — saving on this device for now.", true); });
+  }catch(e){ setMineStatus("Your recipes are saved on this device only."); }
+}
+
+// ---------- Boot ----------
+renderChips(); renderStaples(); renderCuisines(); renderSaved();
+$("modeNote").textContent="Connecting to the AI chef…";
+const aiReady=(async()=>{
+  try{
+    sample = window.claude && window.claude.use ? await window.claude.use("sample") : null;
+    if(sample){ try{ const lim=await sample.limits(); imgLimits=lim&&lim.images||null; canImages=!!imgLimits; }catch(e){ canImages=false; } }
+  }catch(e){ sample=null; }
+  document.body.classList.toggle("no-ai", !sample);
+  $("modeNote").textContent = sample ? "" : "";
+})();
+aiReady.then(initMine);
+renderPremiumBar();
+if("serviceWorker" in navigator && location.protocol==="https:"){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+</script>
+</body>
+</html>
