@@ -60,7 +60,7 @@ export default {
       }),
     });
     const raw = await r.text(); let data = {}; try { data = JSON.parse(raw); } catch {}
-    if (!r.ok) return json({ error: (data.error && data.error.message) || ("Claude error " + r.status + " " + raw.slice(0, 200))) }, r.status === 429 ? 429 : 502);
+    if (!r.ok) return json({ error: (data.error && data.error.message) || ("Claude error " + r.status + " " + raw.slice(0, 200)) }, r.status === 429 ? 429 : 502);
     const text = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("");
     return json({ text, truncated: data.stop_reason === "max_tokens" });
   },
