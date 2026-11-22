@@ -216,6 +216,8 @@ input[type=text]{background:var(--paper);border-color:transparent}
 .stamp.on::after{display:none}
 .stamp.listall{background:var(--lime);border-color:var(--lime);color:var(--lime-ink)}
 .stamp.listall .em{font-size:24px;line-height:1}
+.stamp .cnt{font-size:12px;font-weight:700;opacity:.8}
+.stamp .cnt::before{content:"("}.stamp .cnt::after{content:")"}
 .stamp.listall.on{background:#3a2fb8;border-color:#3a2fb8;color:#fff}
 .stamp{position:relative}
 .stamp .tick{position:absolute;top:6px;right:8px;width:20px;height:20px;border-radius:50%;background:#fff;color:var(--brand);font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
@@ -459,9 +461,10 @@ $("addForm").onsubmit = e => { e.preventDefault(); addIngs([$("ingInput").value]
 // ---------- Cuisines ----------
 const INK={"All": "teal", "Chinese": "red", "Mexican": "green", "Italian": "blue", "Indian": "amber", "Japanese": "red", "Korean": "blue", "Thai": "violet", "Vietnamese": "green", "Mediterranean": "blue", "Middle Eastern": "amber", "French": "violet", "American": "red", "Caribbean & Latin": "teal", "African": "amber"};
 const TILT=[-2,1.5,-1,2,-1.5,1,-2.5,0.5];
+function dishCount(){ return BOOK.filter(r=>chosen(r.cuisine)).length + mine.filter(r=>chosen(r.cuisine)).length; }
 function renderCuisines(){
   const none=S.cuisines.size===0;
-  $("cuisines").innerHTML = `<button class="stamp listall ${S.listing?"on":""}" id="listAll" aria-pressed="${S.listing}" aria-label="List all dishes"><span class="em">☰</span>${S.listing?"Hide list":"List all"}</button>`
+  $("cuisines").innerHTML = `<button class="stamp listall ${S.listing?"on":""}" id="listAll" aria-pressed="${S.listing}" aria-label="Show all dishes"><span class="em">☰</span>${S.listing?"Hide dishes":"Show all dishes"}<span class="cnt">${dishCount()}</span></button>`
     + Object.entries(CUISINES).map(([k,v])=>{ const on = k==="All" ? none : S.cuisines.has(k);
       return `<button class="stamp ${on?"on":""}" aria-pressed="${on}" data-c="${esc(k)}"><span class="em">${v.flag}</span>${k==="All"?"All cultures":esc(k)}${on&&k!=="All"?'<span class="tick">✓</span>':""}</button>`; }).join("");
   $("cuisines").querySelectorAll("button[data-c]").forEach(b=>b.onclick=()=>{
@@ -580,7 +583,7 @@ function listAll(quiet){
   const order=Object.keys(CUISINES);
   S.results=mineAll.concat(book.filter(r=>chosen(r.cuisine))).sort((a,b)=>(order.indexOf(a.cuisine)-order.indexOf(b.cuisine))||a.name.localeCompare(b.name));
   S.tab="All";
-  $("modeNote").textContent=`${S.results.length} dishes${mineAll.length?` (${mineAll.length} of yours)`:""}${S.cuisines.size?" from your chosen cultures":""}. Tap Hide list to close.`;
+  $("modeNote").textContent=`${S.results.length} dishes${mineAll.length?` (${mineAll.length} of yours)`:""}${S.cuisines.size?" from your chosen cultures":""}. Tap Hide dishes to close.`;
   renderCuisines(); renderResults();
   if(!quiet) $("results").scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -787,6 +790,7 @@ function renderMine(){
   $("mineList").innerHTML = list.length ? list.map((d,i)=>dishCard(withUse(d),i,"m")).join("")
     : `<div class="empty">No recipes of your own yet. Tap ＋ Type a recipe — family dishes, favorites, anything. They'll show up when you search with matching ingredients.</div>`;
   $("mineList").querySelectorAll(".dish").forEach(c=>c.onclick=()=>openDish(withUse(list[+c.dataset.i])));
+  if($("cuisines").innerHTML) renderCuisines();
 }
 function withUse(r){
   const have=[...S.ings,...S.staples].map(canon);
