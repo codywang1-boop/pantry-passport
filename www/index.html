@@ -628,13 +628,26 @@ Return JSON only, no prose:
 const IS_ANDROID = !!window.PantryNative;
 let BILL = {};
 try{ if(IS_ANDROID) BILL = JSON.parse(window.PantryNative.billingState()||"{}"); }catch(e){}
-function isPremium(){ return !IS_ANDROID || !!BILL.premium; }
+const CODE_HASH = "8ef3d77513763d4d17401bbe316b95703d8635bceb220651c938f1c0176545ea";
+let CODE_OK = false; try{ CODE_OK = localStorage.getItem("pp_code_ok")===CODE_HASH; }catch(e){}
+function isPremium(){ return !IS_ANDROID || !!BILL.premium || CODE_OK; }
+async function tryCode(raw){
+  const v=(raw||"").trim().toUpperCase().replace(/\s+/g,"");
+  if(!v) return false;
+  const buf=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(v));
+  const hex=[...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+  if(hex!==CODE_HASH) return false;
+  CODE_OK=true; try{ localStorage.setItem("pp_code_ok",CODE_HASH); }catch(e){}
+  return true;
+}
 window.__pantryBilling = st => { BILL = st||{}; renderPremiumBar(); if($("paywall")) openPaywall(); };
 function renderPremiumBar(){
   const bar=$("premiumBar"); if(!bar) return;
   if(!IS_ANDROID){ bar.classList.add("hidden"); return; }
   bar.classList.remove("hidden");
-  bar.innerHTML = BILL.premium
+  bar.innerHTML = CODE_OK && !BILL.premium
+    ? `<span>✨ Premium is on (access code)</span>`
+    : BILL.premium
     ? `<span>✨ Premium is on</span><button class="ghost" id="managePrem">Manage</button>`
     : `<span>✨ AI dish ideas and photo scanning</span><button class="primary" id="openPrem">${BILL.trialDays?"Try free":"Get Premium"}</button>`;
   const m=$("managePrem"); if(m) m.onclick=()=>{ try{ window.PantryNative.manageSubscription(); }catch(e){} };
@@ -642,7 +655,7 @@ function renderPremiumBar(){
 }
 function openPaywall(why){
   const days=BILL.trialDays||14, price=BILL.price||"$4.99";
-  if(BILL.premium){ if($("paywall")) closeSheet(); return; }
+  if(isPremium()){ if($("paywall")) closeSheet(); return; }
   $("sheet").dataset.key="";
   $("sheet").innerHTML = `<div id="paywall">
     <button class="ghost close" id="closeSheet">Not now</button>
@@ -658,12 +671,18 @@ function openPaywall(why){
       <div class="hint">${BILL.trialDays?`Then ${price} a month. Cancel anytime in Google Play before the trial ends and you won't be charged.`:`Renews monthly. Cancel anytime in Google Play.`}</div></div>
     <button class="primary" id="buyPrem" style="width:100%;padding:15px;margin-top:14px;font-size:17px">${BILL.trialDays?`Start ${days}-day free trial`:`Subscribe for ${price}/month`}</button>
     <button class="ghost" id="restorePrem" style="width:100%;margin-top:10px">I already subscribed</button>
+    <div id="codeBox" style="margin-top:10px"><a href="#" id="haveCode" style="font-size:14px">I have an access code</a></div>
     <div class="status" id="payStatus">${BILL.pending?"Your payment is pending in Google Play.":esc(BILL.message||"")}</div>
     <p class="hint">Free forever: the 64-dish recipe book, Show all dishes, your own typed recipes and shopping lists.</p>
   </div>`;
   $("overlay").classList.add("open");
   $("closeSheet").onclick=closeSheet;
   $("buyPrem").onclick=()=>{ $("payStatus").textContent = BILL.ready ? "Opening Google Play…" : "Connecting to Google Play…"; try{ window.PantryNative.billingBuy(); }catch(e){ $("payStatus").textContent="Google Play isn't available here."; } };
+  $("haveCode").onclick=ev=>{ ev.preventDefault();
+    $("codeBox").innerHTML=`<div style="display:flex;gap:8px"><input id="codeIn" placeholder="Access code" autocapitalize="characters" style="flex:1"><button class="ghost" id="codeGo">Unlock</button></div>`;
+    $("codeIn").focus();
+    $("codeGo").onclick=async()=>{ if(await tryCode($("codeIn").value)){ renderPremiumBar(); $("payStatus").textContent="Premium unlocked."; setTimeout(closeSheet,700); } else { $("payStatus").textContent="That code isn't valid."; } };
+  };
   $("restorePrem").onclick=()=>{ $("payStatus").textContent="Checking with Google Play…"; try{ window.PantryNative.billingRefresh(); }catch(e){} setTimeout(()=>{ if(!BILL.premium && $("payStatus")) $("payStatus").textContent="No active subscription found for this Google account."; },4000); };
 }
 function needPremium(why){ if(isPremium()) return false; openPaywall(why); return true; }
