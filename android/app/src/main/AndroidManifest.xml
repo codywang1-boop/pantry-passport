@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Used for AI dish ideas and photo reading (the app's own AI server). -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false" />
 
     <!-- Lets the app hand a photo request to the phone's camera app. -->
     <queries>

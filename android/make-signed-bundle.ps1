@@ -5,7 +5,7 @@
 
 $ErrorActionPreference = "Stop"
 $Project  = $PSScriptRoot
-$Version  = "1.0.0"
+$Version  = ([regex]::Match((Get-Content (Join-Path $PSScriptRoot "app\build.gradle.kts") -Raw), 'versionName = "([^"]+)"')).Groups[1].Value
 $KeyDir   = Join-Path $env:USERPROFILE "Documents\Keys"
 $KeyFile  = Join-Path $KeyDir "pantrypassport-upload.jks"
 $Alias    = "upload"
@@ -58,4 +58,5 @@ Write-Host "DONE: $Signed ($mb MB)" -ForegroundColor Green
 Write-Host "Tell Claude 'bundle ready' and it will upload it to Play Console." -ForegroundColor Green
 explorer.exe /select,"$Signed"
 Read-Host "Press Enter to close"
+
 
